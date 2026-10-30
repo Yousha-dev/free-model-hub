@@ -1,0 +1,2851 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Model Hub</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #eef2f7; --fg: #171e28; --muted: #5d6b7d; --card: #ffffff;
+  --border: #e3e9f1; --border-strong: #cdd6e2;
+  --accent: #1668dc;
+  --accent-soft: rgba(22,104,220,.08); --grad: linear-gradient(135deg,#1d4ed8 0%,#1668dc 45%,#0ea5e9 100%);
+  --ok: #15803d; --ok-soft: rgba(34,197,94,.12);
+  --warn: #b45309; --warn-soft: rgba(245,158,11,.14);
+  --err: #b91c1c; --err-soft: rgba(239,68,68,.11);
+  --row-hover: rgba(22,104,220,.05);
+  --shadow-card: 0 1px 2px rgba(16,24,40,.05), 0 10px 28px -14px rgba(16,24,40,.14);
+  --shadow-pop: 0 12px 32px -8px rgba(16,24,40,.22);
+  --radius: 14px;
+  /* Provider color chips: vendorChipClass() hashes vendor_id to v0..v5, overridden by both themes */
+  --chip-0-bg: rgba(124,58,237,.1);  --chip-0-fg: #6d28d9;
+  --chip-1-bg: rgba(8,145,178,.12);  --chip-1-fg: #155e75;
+  --chip-2-bg: rgba(180,83,9,.12);   --chip-2-fg: #92400e;
+  --chip-3-bg: rgba(225,29,72,.1);   --chip-3-fg: #be123c;
+  --chip-4-bg: rgba(22,101,52,.12);  --chip-4-fg: #166534;
+  --chip-5-bg: rgba(30,64,175,.1);   --chip-5-fg: #1e40af;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0a0f16; --fg: #e6ecf4; --muted: #8fa0b3; --card: #121a24;
+          --border: #212d3d; --border-strong: #324154;
+          --accent: #5290f5;
+          --accent-soft: rgba(82,144,245,.16); --grad: linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 45%,#0284c7 100%);
+          --ok: #4ade80; --ok-soft: rgba(74,222,128,.13);
+          --warn: #fbbf24; --warn-soft: rgba(251,191,36,.13);
+          --err: #f87171; --err-soft: rgba(248,113,113,.13);
+          --row-hover: rgba(82,144,245,.08);
+          --shadow-card: 0 1px 2px rgba(0,0,0,.4), 0 12px 32px -16px rgba(0,0,0,.5);
+          --shadow-pop: 0 16px 40px -8px rgba(0,0,0,.6);
+          --chip-0-bg: rgba(167,139,250,.16); --chip-0-fg: #c4b5fd;
+          --chip-1-bg: rgba(34,211,238,.14);  --chip-1-fg: #67e8f9;
+          --chip-2-bg: rgba(251,191,36,.14);  --chip-2-fg: #fcd34d;
+          --chip-3-bg: rgba(251,113,133,.14); --chip-3-fg: #fda4af;
+          --chip-4-bg: rgba(134,239,172,.13); --chip-4-fg: #86efac;
+          --chip-5-bg: rgba(147,197,253,.14); --chip-5-fg: #93c5fd; }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; color: var(--fg);
+  font: 13.5px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  background: var(--bg);
+  background-image: radial-gradient(rgba(28,42,60,.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+@media (prefers-color-scheme: dark) {
+  body { background-image: radial-gradient(rgba(148,163,184,.08) 1px, transparent 1px); }
+}
+::selection { background: var(--accent-soft); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 5px; border: 2px solid var(--bg); }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ---- Header: slim gradient header (host shell floating button sits on top right, keeping low profile to avoid collision) ---- */
+header { margin: 14px 20px 0; border-radius: 14px; padding: 15px 22px;
+         background: var(--grad); color: #fff; position: relative; overflow: hidden;
+         box-shadow: 0 10px 26px -12px rgba(22,104,220,.55); }
+header::before { content: ""; position: absolute; width: 300px; height: 300px; border-radius: 50%;
+                 right: -70px; top: -160px;
+                 background: radial-gradient(circle, rgba(255,255,255,.26), transparent 65%); }
+header h1 { margin: 0; font-size: 19px; font-weight: 750; letter-spacing: -.01em; }
+.sub { color: var(--muted); font-size: 12.5px; }
+header .sub { color: rgba(255,255,255,.92); margin-top: 2px; }
+main { padding: 14px 20px 48px; }
+
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 16px 18px; margin-bottom: 14px; box-shadow: var(--shadow-card); }
+.card h2 { margin: 0 0 12px; font-size: 14.5px; font-weight: 700;
+           display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.card h2::before { content: ""; width: 9px; height: 9px; border-radius: 3px;
+                   background: var(--grad); flex: none; box-shadow: 0 0 8px rgba(22,104,220,.45); }
+.card h2 .muted { font-weight: 400; font-size: 12.5px; }
+
+[hidden], [hidden="true"], [hidden=""] { display: none !important; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.row[hidden] { display: none !important; }
+button.act { padding: 6.5px 13px; border: 1px solid var(--border-strong); border-radius: 9px;
+             background: var(--card); color: var(--fg); cursor: pointer; font-size: 13px; font-weight: 550;
+             transition: background .12s ease, border-color .12s ease, color .12s ease,
+                         transform .08s ease, box-shadow .12s ease, filter .12s ease; }
+button.act:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+button.act:active { transform: scale(.98); }
+button.act:disabled { opacity: .5; cursor: not-allowed; }
+button.primary { background: var(--grad); border: 1px solid transparent; color: #fff;
+                 box-shadow: 0 4px 14px -4px rgba(22,104,220,.55); }
+button.primary:hover { background: var(--grad); filter: brightness(1.08); color: #fff;
+                       transform: translateY(-1px); box-shadow: 0 6px 18px -6px rgba(22,104,220,.65); }
+button.primary:active { transform: scale(.98); }
+/* Dangerous operations like deletion: match regular buttons by default, turn red on hover (corresponding to "act danger" in JS). */
+button.act.danger:hover:not(:disabled) { color: var(--err); border-color: var(--err); background: var(--err-soft); }
+
+table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px;
+        font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 7.5px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+/* Sticky table headers only work for tables scrolling with the page. #models is an overflow-x scrolling container, */
+   its vertical overflow is also calculated as auto, so sticky headers cannot reach the viewport, thus the model table is not sticky (expected, not a bug). */
+thead th { position: sticky; top: -1px; z-index: 1;
+           background: rgba(255,255,255,.86); backdrop-filter: blur(8px);
+           color: var(--muted); font-size: 11.5px; font-weight: 650; letter-spacing: .05em;
+           border-bottom: 1px solid var(--border-strong); }
+@media (prefers-color-scheme: dark) { thead th { background: rgba(18,26,36,.86); } }
+tbody tr { transition: background .12s ease; }
+tbody tr:hover td { background: var(--row-hover); }
+tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+tbody tr:last-child td { border-bottom: none; }
+th.sortable { cursor: pointer; user-select: none; }
+th.sortable:hover { color: var(--accent); }
+th.sortable .th-sort-wrap { display: inline-flex; align-items: center; gap: 3px; line-height: 1; vertical-align: middle; }
+.sort-arrows { display: inline-flex; flex-direction: column; justify-content: center; align-items: center;
+               position: relative; top: -1px; }
+.sort-arrow { display: block; width: 0; height: 0; border-left: 3px solid transparent;
+              border-right: 3px solid transparent; transition: border-color .15s ease; }
+.sort-arrow.asc { border-bottom: 4px solid var(--muted); margin-bottom: 2px; }
+.sort-arrow.desc { border-top: 4px solid var(--muted); }
+.sort-arrows.order-asc .sort-arrow.asc { border-bottom-color: var(--accent); }
+.sort-arrows.order-desc .sort-arrow.desc { border-top-color: var(--accent); }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px;
+        border-radius: 999px; font-size: 11.5px; font-weight: 550;
+        background: var(--bg); border: 1px solid var(--border); color: var(--fg); }
+.pill.v0 { background: var(--chip-0-bg); color: var(--chip-0-fg); border-color: transparent; }
+.pill.v1 { background: var(--chip-1-bg); color: var(--chip-1-fg); border-color: transparent; }
+.pill.v2 { background: var(--chip-2-bg); color: var(--chip-2-fg); border-color: transparent; }
+.pill.v3 { background: var(--chip-3-bg); color: var(--chip-3-fg); border-color: transparent; }
+.pill.v4 { background: var(--chip-4-bg); color: var(--chip-4-fg); border-color: transparent; }
+.pill.v5 { background: var(--chip-5-bg); color: var(--chip-5-fg); border-color: transparent; }
+.pill.ok   { color: var(--ok);   background: var(--ok-soft);   border-color: transparent; }
+.pill.warn { color: var(--warn); background: var(--warn-soft); border-color: transparent; }
+.pill.err  { color: var(--err);  background: var(--err-soft);  border-color: transparent; }
+.pill.ok::before, .pill.warn::before, .pill.err::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
+
+/* Threshold gauge: gradient fill, high remaining ratio = green / medium = amber / low = red */
+.bar { position: relative; display: inline-block; width: 72px; height: 6px;
+       border-radius: 4px; background: var(--border); vertical-align: middle; overflow: hidden; }
+.bar i { display: block; height: 100%; border-radius: 4px;
+         background: linear-gradient(90deg, #34d399, #059669);
+         transition: width .3s ease; }
+.bar.warn i { background: linear-gradient(90deg, #fbbf24, #d97706); }
+.bar.err  i { background: linear-gradient(90deg, #f87171, #dc2626); }
+@media (prefers-color-scheme: dark) {
+  .bar i { background: linear-gradient(90deg, #34d399, #10b981); }
+  .bar.warn i { background: linear-gradient(90deg, #fcd34d, #f59e0b); }
+  .bar.err i { background: linear-gradient(90deg, #fca5a5, #ef4444); }
+}
+
+.muted { color: var(--muted); }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+/* Terminal log: dual-theme constant dark embedded panel */
+.logbox { max-height: 420px; overflow: auto; font: 11.5px/1.7 ui-monospace, SFMono-Regular, Menlo, monospace;
+          background: #0b1220; color: #cbd5e1; border: 1px solid rgba(148,163,184,.18);
+          border-radius: 10px; padding: 12px 14px; box-shadow: inset 0 1px 6px rgba(0,0,0,.35); }
+.logbox div { white-space: pre-wrap; word-break: break-all; }
+.logbox .ERROR { color: #f87171; }
+.logbox .DEBUG { color: #7c8ca3; }
+.logbox .WARN { color: #fbbf24; }
+.logbox .INFO { color: #7dd3fc; }
+
+label { display: inline-flex; align-items: center; gap: 6px; }
+input[type=text], input[type=number], input[type=password], select {
+  padding: 6.5px 10px; border: 1px solid var(--border-strong);
+  border-radius: 9px; background: var(--card); color: var(--fg); font-size: 13px;
+  transition: border-color .12s ease, box-shadow .12s ease; }
+select { cursor: pointer; }
+input[type=text]:hover, input[type=number]:hover, input[type=password]:hover, select:hover { border-color: var(--muted); }
+input[type=text]:focus, input[type=number]:focus, input[type=password]:focus, select:focus { outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft); }
+input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; }
+/* Callback URLs are very long; monospace font + manual line wrapping is needed to check if parameters are fully concatenated. */
+textarea { padding: 7px 11px; border: 1px solid var(--border-strong); border-radius: 10px;
+        background: var(--card); color: var(--fg); font-size: 13px; width: 100%;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace; resize: vertical; }
+/* Inline table input: appears after clicking alias, matching table row height. */
+input.aliasinput { padding: 3px 7px; width: 100%; min-width: 96px; font-size: 12.5px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+input.aliasinput:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+/* Inline table editing (shared by model ID and account alias): text is clickable to enter edit mode, with ✎ on the right as a hint. */
+.editable { display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+            border-bottom: 1px dashed var(--border-strong); padding: 1px 2px; }
+.editable:hover { color: var(--accent); border-bottom-color: var(--accent); }
+.editable:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+.editableedit { color: var(--muted); font-size: 11.5px; }
+.editable:hover .editableedit { color: var(--accent); }
+
+#models { overflow-x: auto; }
+#models table { min-width: 980px; }
+#models .col-check { width: 1%; text-align: center; padding-left: 8px; padding-right: 4px; }
+#models .col-status, #models .col-vendor { width: 1%; white-space: nowrap; }
+#models .editablename { display: inline-block; max-width: clamp(120px, 14vw, 200px);
+  overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
+#models .name-text { display: inline-block; max-width: clamp(80px, 10vw, 150px);
+  overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
+#models .col-credits { min-width: 90px; white-space: nowrap; }
+#models .col-context, #models .col-output { min-width: 76px; white-space: nowrap; }
+#models .col-caps { min-width: 105px; white-space: nowrap; }
+#models .col-efforts { min-width: 150px; white-space: nowrap; }
+
+/* Column display: aligned to the far right of the button row; menu expands to the right to avoid overflowing the viewport. */
+.cols-setter { margin-left: auto; }
+.dropdown { position: relative; display: inline-block; }
+.dropdown-menu { position: absolute; top: calc(100% + 6px); left: 0; z-index: 20;
+                 min-width: 180px; background: var(--card); border: 1px solid var(--border);
+                 border-radius: 12px; box-shadow: var(--shadow-pop); overflow: hidden; padding: 4px; }
+.dropdown-menu.right { left: auto; right: 0; }
+.dropdown-menu button { display: block; width: 100%; padding: 7.5px 12px; border: 0; border-radius: 8px;
+                        background: transparent; color: var(--fg); text-align: left;
+                        cursor: pointer; font-size: 13px; transition: background .1s ease; }
+.dropdown-menu button:hover { background: var(--accent-soft); color: var(--accent); }
+.dropdown-menu label { display: flex; align-items: center; gap: 8px;
+                       padding: 8px 12px; cursor: pointer; font-size: 13px; border-radius: 8px; }
+.dropdown-menu label:hover { background: var(--bg); }
+.dropdown-menu label.disabled { cursor: not-allowed; opacity: .7; }
+
+.banner { padding: 10px 14px; border-radius: 10px; margin-bottom: 12px; font-size: 13px;
+          display: none; transition: opacity .2s ease; border: 1px solid transparent;
+          border-left-width: 3px; backdrop-filter: blur(6px); white-space: pre-line; }
+.banner.show { display: block; }
+.banner.err  { background: var(--err-soft);  border-left: 3px solid var(--err);  color: var(--err); }
+.banner.ok   { background: var(--ok-soft);   border-left: 3px solid var(--ok);   color: var(--ok); }
+.banner.warn { background: var(--warn-soft); border-left: 3px solid var(--warn); color: var(--warn); }
+.hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.disclaimer { padding: 10px 14px; border-radius: 10px; margin-bottom: 14px; font-size: 12.5px; background: var(--warn-soft); border: 1px solid transparent; border-left: 3px solid var(--warn); color: var(--fg); line-height: 1.55; }
+
+/* ---- Plan Claim Modal ---- */
+.modal { position: fixed; inset: 0; z-index: 60; display: none; align-items: center;
+         justify-content: center; padding: 20px; background: rgba(9,13,18,.55); backdrop-filter: blur(3px); }
+.modal[hidden] { display: none !important; }
+.modal-box { width: 100%; max-width: 620px; max-height: 86vh; overflow: auto;
+             padding: 20px; background: var(--card); border: 1px solid var(--border);
+             border-radius: 16px; box-shadow: var(--shadow-pop); }
+.modal-box h2 { margin-top: 0; }
+.plan { padding: 12px; margin: 10px 0; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; }
+.plan:hover { border-color: var(--accent); }
+.plan.selected { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.plan-title { font-weight: 650; }
+.plan-grants { margin-top: 6px; font-size: 13px; color: var(--muted); }
+.claim-captcha { min-height: 68px; margin: 12px 0; display: flex;
+                 align-items: center; justify-content: center; }
+/* Login panel CAPTCHA anchor: same style as the claim modal, but height only takes up space when the slider appears. */
+.login-captcha { min-height: 0; margin: 10px 0 0; display: flex;
+                 align-items: center; justify-content: flex-start; }
+.login-captcha[hidden] { display: none !important; }
+.claim-row { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+
+/* Collapsible block: collapsed by default, title row always visible. Used for long lists. */
+details.fold { border-top: 1px solid var(--border); margin-top: 12px; padding-top: 10px; }
+details.fold > summary { cursor: pointer; font-size: 12.5px; color: var(--muted);
+                        list-style: none; display: flex; align-items: center; gap: 6px; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::before { content: "\25B8"; font-size: 22px; line-height: .7;
+                                display: inline-block; vertical-align: -2px; }
+details.fold[open] > summary::before { content: "\25BE"; }
+details.fold > summary:hover { color: var(--accent); }
+details > summary { cursor: pointer; color: var(--muted); font-size: 12.5px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Free Model Hub</h1>
+  <div class="sub">Free and free-tier model providers: accounts, quotas and models</div>
+</header>
+<main>
+  <div class="disclaimer">
+    ⚠️ <b>Compliance and Disclaimer:</b> This project is for personal learning and technical research only (maximum 10 accounts per provider), and is strictly prohibited from any commercial sale, API resale, proxy top-up, or illegal use violating the terms of service and laws and regulations of various upstream platforms. All risks arising from the use of this plugin (including account bans, forfeiture of rights, etc.) shall be borne solely by the user.
+  </div>
+  <div class="card" id="keyBox" hidden>
+    <h2>Management Key</h2>
+    <div class="row">
+      <input type="password" id="keyInput" placeholder="Enter CPA management key (remote-management.secret-key)" style="flex:1;min-width:280px">
+      <button class="act primary" id="btnUseKey">Use</button>
+    </div>
+    <div class="hint">
+      <span id="keyStatus" class="muted"></span><br>
+      This page directly reuses the logged-in key from the CPA management panel (the panel must have "Remember Password" checked); if it cannot be read, enter it here once.
+    </div>
+  </div>
+
+  <div id="banner" class="banner"></div>
+
+  <section id="view-accounts">
+    <div class="card">
+      <h2>Account Overview <span class="muted" id="accountCount"></span></h2>
+      <div class="row">
+        <div class="dropdown">
+          <button class="act primary" id="btnAddAccount">Add Account ▾</button>
+          <div class="dropdown-menu" id="addVendorMenu" hidden></div>
+        </div>
+        <button class="act" id="btnDisableAccounts">Disable Selected</button>
+        <button class="act" id="btnEnableAccounts">Enable Selected</button>
+        <button class="act" id="btnSelectAllAccounts">Select All</button>
+        <button class="act" id="btnSelectNoneAccounts">Clear</button>
+        <button class="act" id="btnRefresh">Refresh Token</button>
+        <button class="act" id="btnLoadQuotas">Query Quota</button>
+        <button class="act danger" id="btnDeleteAccounts" disabled>Delete</button>
+        <label>Filter <input type="text" id="accountFilter" placeholder="e.g. workbuddy / email" style="width:160px"></label>
+      </div>
+      <div class="hint">
+        Check accounts to batch disable / enable / delete; when none are checked, Token refresh and quota query apply to all accounts.
+      </div>
+
+      <div class="card" id="smsBox" hidden>
+        <h2 id="smsTitle">SMS Verification Code Login</h2>
+        <div class="row" style="margin-bottom:8px">
+          <input type="tel" id="inputSmsPhone" placeholder="Phone number (11 digits)" style="flex:2;min-width:240px">
+          <button class="act" id="btnSmsSend">Send Code</button>
+        </div>
+        <div class="row" style="margin-bottom:8px">
+          <input type="text" id="inputSmsCode" placeholder="6-digit SMS code" style="flex:1;min-width:160px" maxlength="6">
+          <input type="text" id="inputSmsLabel" placeholder="Label (optional)" style="flex:1;min-width:140px">
+          <button class="act primary" id="btnSmsVerify">Login & Add</button>
+          <button class="act" id="btnSmsCancel">Cancel</button>
+        </div>
+        <div class="hint" id="smsStatus">Enter phone number to get verification code.</div>
+      </div>
+
+      <div class="card" id="loginBox" hidden>
+        <h2 id="loginTitle">Complete Authorization</h2>
+        <div class="row" id="loginVariantRow" hidden style="display:none"></div>
+        <div class="login-captcha" id="loginCaptcha" hidden></div>
+        <div class="row">
+          <input type="text" id="loginUrl" readonly style="flex:1;min-width:320px">
+          <button class="act" id="btnOpenUrl">Open Link</button>
+          <button class="act" id="btnCopyUrl">Copy</button>
+          <button class="act" id="btnLoginCancel">Cancel</button>
+        </div>
+        <div class="hint" id="loginStatus">Waiting for authorization...</div>
+        <details id="loginPasteBox" hidden>
+          <summary>Callback didn't reach the plugin? Paste callback link</summary>
+          <div class="hint" id="loginPasteHint"></div>
+          <textarea id="loginPasteUrl" rows="3"
+            placeholder="Paste the entire localhost link from the browser address bar here"></textarea>
+          <div class="row" style="margin-top:8px">
+            <button class="act" id="btnSubmitCallback">Submit Callback Link</button>
+            <a id="loginPasteRedirect" target="_blank" rel="noopener" hidden>Open Huawei Cloud Login Page</a>
+            <span class="hint" id="loginPasteStatus"></span>
+          </div>
+        </details>
+      </div>
+
+      <div class="card" id="apiKeyBox" hidden>
+        <h2 id="apiKeyTitle">Add API Key Account</h2>
+        <div class="row" style="margin-bottom:8px">
+          <input type="password" id="inputApiKey" placeholder="Enter API Key (Required)" style="flex:2;min-width:280px">
+          <input type="text" id="inputApiLabel" placeholder="Note Name (Optional)" style="flex:1;min-width:140px">
+          <button class="act primary" id="btnSubmitApiKey">Save Account</button>
+          <button class="act" id="btnCancelApiKey">Cancel</button>
+        </div>
+        <div class="hint" id="apiKeyHint">Please enter the API Key obtained from the official website. Once saved, a credential will be automatically created in the auth directory.</div>
+      </div>
+
+  <div class="modal" id="claimModal" style="display:none" hidden>
+    <div class="modal-box">
+      <h2 id="claimTitle">Claim Plan</h2>
+      <div id="claimPlans" class="muted">Querying available plans...</div>
+      <div class="claim-captcha" id="claimCaptcha"></div>
+      <button id="claimCaptchaBtn" type="button" hidden></button>
+      <div class="hint" id="claimHint"></div>
+      <details id="claimPasteBox" hidden>
+        <summary>Captcha script failed to load? Switch to pasting captcha parameter</summary>
+        <input type="text" id="claimVerifyParam" placeholder="Paste captchaVerifyParam"
+               style="width:100%;margin-top:8px">
+      </details>
+      <div class="claim-row">
+        <button class="act primary" id="btnClaimConfirm" type="button" disabled>Confirm Claim</button>
+        <button class="act" id="btnClaimCancel" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+      <div id="accounts"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card">
+      <h2>Models <span class="muted" id="modelCount"></span></h2>
+      <div class="row">
+        <button class="act primary" id="btnLoadModels">Fetch Model List</button>
+        <button class="act" id="btnDisableModels">Disable Selected</button>
+        <button class="act" id="btnEnableModels">Enable Selected</button>
+        <button class="act" id="btnSelectAllModels">Select All</button>
+        <button class="act" id="btnSelectNoneModels">Clear</button>
+        <label>Filter <input type="text" id="modelFilter" placeholder="e.g. glm / gpt" style="width:160px"></label>
+        <div class="dropdown cols-setter">
+          <button class="act" id="btnModelCols" aria-haspopup="true" aria-expanded="false"
+                  title="Select columns to display in the table">Column Display ▾</button>
+          <div class="dropdown-menu right" id="modelColsMenu" hidden></div>
+        </div>
+      </div>
+      <div class="hint">
+        Click the model name in the "Model ID" column or the ✎ icon on its right to edit the alias (leave blank = restore official ID). <b>Models from different providers set to the same alias</b> will be automatically scheduled by the host as a single ID.
+      </div>
+      <div id="models"></div>
+    </div>
+  </section>
+
+  <section id="view-settings">
+    <div class="card">
+      <h2>Runtime Settings</h2>
+      <div class="row">
+        <label>Token Keepalive Hour <input type="text" id="setKeepaliveHours" placeholder="22" style="width:120px"></label>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <label>Prompt Defense Mode
+          <select id="setPromptMode" style="margin-left:8px;padding:3px 6px">
+            <option value="passthrough">Passthrough (keep client's original prompt)</option>
+            <option value="custom">Replace (strip signature prompts, inject clean prompt)</option>
+            <option value="append">Append (append security guidelines at the end)</option>
+          </select>
+        </label>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <label>Model Name Channel Identifier
+          <select id="setModelNameTag" style="margin-left:8px;padding:3px 6px">
+            <option value="off">Off (keep model name as is)</option>
+            <option value="prefix">Prefix (e.g. zcode-GLM-5.3)</option>
+            <option value="suffix">Suffix (e.g. GLM-5.3-zcode)</option>
+          </select>
+        </label>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="act primary" id="btnSaveSettings">Save Settings</button>
+      </div>
+      <div id="scheduleInfo" class="hint"></div>
+    </div>
+  </section>
+
+  <section id="view-logs">
+    <div class="card">
+      <h2>Run Logs</h2>
+      <div class="row">
+        <button class="act" id="btnLogs">Refresh</button>
+        <label><input type="checkbox" id="autoLogs"> Auto Refresh</label>
+      </div>
+      <div class="logbox" id="logs"></div>
+    </div>
+  </section>
+</main>
+<script>
+(function () {
+  "use strict";
+  var BASE = "__BASE__";
+  // MGMT is the management API prefix for **this plugin**.
+  var MGMT = "/v0/management" + BASE;
+  // HOST_MGMT is the management API prefix provided by the **host** (OAuth login, etc.).
+  //
+  // These two must not be mixed: the host extracts the provider from the path
+  // as "/v0/management/<provider>-auth-url". Including the plugin prefix results in "plugins/free-model-hub/workbuddy",
+  // causing verification to fail with a 404 (displayed as "The string did not match the expected pattern.").
+  var HOST_MGMT = "/v0/management";
+  var logSeq = 0;
+  var logTimer = null;
+  var stopped = false;
+  // authReady indicates the management credential has been verified by the probe; timers and initial rendering both gate on it.
+  var authReady = false;
+
+  // ---- Obtaining the management credential ----
+  //
+  // This page has the **same origin** as the CPA Management Console (CPAMC), so it can directly reuse the console's saved
+  // management credential, avoiding manual re-entry. The console stores the entire authentication state in localStorage
+  // under the "cli-proxy-auth" key, encoded with a reversible XOR obfuscation:
+  //
+  //   enc::v1:: + base64( utf8(JSON) XOR key )
+  //   key = utf8("cli-proxy-api-webui::secure-storage|<host>|<userAgent>")
+  //
+  // The plaintext looks like {"state":{...,"managementKey":"<credential>",...},"version":N},
+  // with the credential located at state.managementKey.
+  //
+  // Note: The console only writes managementKey if "Remember Password" is checked during login—when unchecked,
+  // the key still exists but lacks this field. Therefore, auto-reuse is **best-effort**: if it cannot be read,
+  // it falls back to prompting the user to enter it manually (see revealKeyInput).
+  var PANEL_STORE_KEY = "cli-proxy-auth";
+  var PANEL_KEY_FIELD = "managementKey";
+  var MANUAL_STORE_KEY = "cpa-management-key";
+  var OBF_PREFIX = "enc::v1::";
+  var OBF_SEED = "cli-proxy-api-webui::secure-storage";
+  var manualKey = "";
+  var keyBusy = false;
+  var keyRetryAfter = 0;
+
+  function obfuscationKey() {
+    return new TextEncoder().encode(
+      OBF_SEED + "|" + location.host + "|" + navigator.userAgent);
+  }
+
+  // deobfuscate restores the value written by the console; returns null if not an obfuscated format or decoding fails.
+  function deobfuscate(raw) {
+    if (!raw || raw.indexOf(OBF_PREFIX) !== 0) return null;
+    try {
+      var binary = atob(raw.slice(OBF_PREFIX.length));
+      var bytes = new Uint8Array(binary.length);
+      for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      var key = obfuscationKey();
+      for (var j = 0; j < bytes.length; j++) bytes[j] ^= key[j % key.length];
+      return new TextDecoder().decode(bytes);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // KEY_RE restricts the acceptable credential character set: must be visible ASCII.
+  //
+  // Why validation is necessary: The console's obfuscated credential is derived from the host and userAgent. After a browser upgrade,
+  // changes to the userAgent can cause decoding to produce garbage (including U+FFFD replacement characters). Inserting such garbage
+  // into the Authorization header causes the browser to reject requests outright—Safari reports precisely
+  // "The string did not match the expected pattern.", which is extremely difficult to locate elsewhere.
+  var KEY_RE = /^[\x21-\x7E]+$/;
+
+  // normalizeKeyValue normalizes the stored value into a raw credential string; returns empty if not a valid credential.
+  function normalizeKeyValue(raw) {
+    if (!raw) return "";
+    var text = String(raw).trim();
+    if (text.indexOf(OBF_PREFIX) === 0) return "";        // Obfuscated string, delegate to deobfuscate
+    if (text === "null" || text === "undefined") return "";
+    // The console uses JSON.stringify for storage, so the value may be quoted.
+    if (text.length > 1 && text.charAt(0) === '"' && text.charAt(text.length - 1) === '"') {
+      try { text = JSON.parse(text); } catch (e) { /* Keep original value */ }
+    }
+    if (typeof text !== "string") return "";
+    text = text.trim();
+    if (text === "" || text === "null" || text === "undefined") return "";
+    // Only accept visible ASCII: replacement characters / control characters / non-ASCII indicate decoding failure or an invalid value.
+    if (!KEY_RE.test(text)) return "";
+    return text;
+  }
+
+  // panelAuthKey extracts the management credential from the console's persisted snapshot.
+  //
+  //   localStorage["cli-proxy-auth"] = "enc::v1::" + XOR(JSON) or pure JSON
+  //   JSON.state.managementKey
+  //
+  // When "Remember Password" is unchecked in the console, the snapshot lacks the managementKey field, returning an empty string here.
+  function panelAuthKey() {
+    var raw = "";
+    try { raw = localStorage.getItem(PANEL_STORE_KEY) || ""; } catch (e) { return ""; }
+    if (!raw) return "";
+    var text = raw;
+    if (raw.indexOf(OBF_PREFIX) === 0) {
+      text = deobfuscate(raw) || "";
+      if (!text) return "";
+    }
+    var snapshot = null;
+    try { snapshot = JSON.parse(text); } catch (e) { return ""; }
+    if (!snapshot || typeof snapshot !== "object") return "";
+    // The zustand persist storage format is {state:{...},version:N}, also compatible with storing state directly.
+    var state = (snapshot.state && typeof snapshot.state === "object") ? snapshot.state : snapshot;
+    return normalizeKeyValue(state[PANEL_KEY_FIELD]);
+  }
+
+  // managementKey returns the currently active management credential.
+  //
+  // Priority: Manually entered value on this page -> Console snapshot -> Manually entered and **verified** value earlier in this tab.
+  // Returning an empty string means no available credential exists, in which case api() will not issue any requests.
+  function managementKey() {
+    if (manualKey) return manualKey;
+    var fromPanel = panelAuthKey();
+    if (fromPanel) return fromPanel;
+    try { return normalizeKeyValue(sessionStorage.getItem(MANUAL_STORE_KEY)); }
+    catch (e) { return ""; }
+  }
+
+  var bannerTimer = null;
+
+  function banner(kind, text, duration) {
+    if (bannerTimer) { clearTimeout(bannerTimer); bannerTimer = null; }
+    var el = document.getElementById("banner");
+    if (!el) return;
+    el.className = "banner show " + kind;
+    el.textContent = text;
+    // Default auto-dismiss time: ok 5s, warn 6s, err 8s. If 0 is passed, it stays visible until replaced by the next operation or manually cleared
+    var timeout = duration !== undefined ? duration : (kind === "ok" ? 5000 : (kind === "warn" ? 6000 : 8000));
+    if (timeout > 0) {
+      bannerTimer = setTimeout(function () {
+        clearBanner();
+      }, timeout);
+    }
+  }
+
+  function clearBanner() {
+    if (bannerTimer) { clearTimeout(bannerTimer); bannerTimer = null; }
+    var el = document.getElementById("banner");
+    if (el) el.className = "banner";
+  }
+
+  // haltOnAuthFailure determines credential invalidation: immediately stops all automatic requests and expands the manual input box.
+  //
+  // CPA tracks management credential failure counts by IP, banning for 30 minutes after 5 failures; unauthenticated requests are also counted, and
+  // The ban applies to the entire /v0/management (i.e., the whole backend). Therefore, it must stop on the first failure.
+  function haltOnAuthFailure(status) {
+    if (status !== 401 && status !== 403) return false;
+    stopped = true;
+    authReady = false;
+    if (logTimer) { clearInterval(logTimer); logTimer = null; }
+    stopLoginPolling();
+    revealKeyInput();
+    setKeyStatus("Management key invalid or missing (HTTP " + status + ")");
+    banner("err", "Management key invalid or missing (HTTP " + status + "). Stopped all automatic requests to prevent triggering CPA IP ban. "
+      + "If 'Remember password' is checked on the panel, this page will reuse it automatically; otherwise, please enter it once above.");
+    return true;
+  }
+
+  // revealKeyInput expands the key input box (manual fallback when automatic reuse fails); no requests are sent at this point.
+  function revealKeyInput() {
+    var box = document.getElementById("keyBox");
+    if (box) box.hidden = false;
+  }
+
+  function setKeyStatus(text) {
+    var el = document.getElementById("keyStatus");
+    if (el) el.textContent = text;
+  }
+
+  // hostPath marks this path as a host-level management interface (without plugin prefix).
+  // Using a prefix marker instead of changing the api() signature makes call sites read more straightforwardly.
+  var HOST_PREFIX = "@host";
+  function hostPath(path) { return HOST_PREFIX + path; }
+
+  function api(method, path, body) {
+    // Gate: Never send requests when identity is unconfirmed (or determined to be invalid).
+    //
+    // CPA counts 'carrying no management key' as a failure, 5 times means a 30-minute ban, and it bans
+    // the entire /v0/management—sending an extra request on the page risks the entire backend.
+    if (stopped) return Promise.resolve(null);
+    var key = managementKey();
+    if (!key) return Promise.resolve(null);
+    var headers = { "Content-Type": "application/json" };
+    headers["Authorization"] = "Bearer " + key;
+    var url = path.indexOf(HOST_PREFIX) === 0
+      ? HOST_MGMT + path.slice(HOST_PREFIX.length)
+      : MGMT + path;
+    return fetch(url, {
+      method: method,
+      headers: headers,
+      body: body ? JSON.stringify(body) : undefined
+    }).then(function (resp) {
+      if (haltOnAuthFailure(resp.status)) return null;
+      return resp.json().then(function (data) {
+        if (!resp.ok) {
+          var msg = (data && data.error) ? data.error : ("HTTP " + resp.status);
+          throw new Error(msg);
+        }
+        // The host transparently passes the plugin's response body **as is** to the browser (the {ok, result}
+        // envelope is the RPC format between the plugin and host, and will not reach here). Therefore, return body directly,
+        // and do not peel off another "result" layer—that would drop all business fields.
+        return data;
+      });
+    });
+  }
+
+  // identity is the default normalization function for inline editors: return input as is.
+  function identity(value) { return value; }
+
+  function el(tag, text, className) {
+    var node = document.createElement(tag);
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    if (className) node.className = className;
+    return node;
+  }
+
+  function pill(text, kind) {
+    return el("span", text, "pill" + (kind ? " " + kind : ""));
+  }
+
+  // shortReason condenses the upstream error body into a single line: the quota grid has only one column width, and the full reason goes into the title.
+  function shortReason(text) {
+    var flat = String(text || "").replace(/\s+/g, " ").trim();
+    return flat.length > 42 ? flat.slice(0, 42) + "…" : flat;
+  }
+
+  // vendorChipClass hashes the vendor identifier to v0..v5 for CSS to apply colored chip backgrounds.
+  // Prefer vendor_id: display names can change, and using name hashing would cause chip colors to change accordingly.
+  function vendorChipClass(vendorID, label) {
+    var key = String(vendorID || label || "");
+    var h = 0;
+    for (var i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+    return "v" + (h % 6);
+  }
+
+  // cellWith wraps a node into a td (appendChild is handier in tables).
+  function cellWith(node) {
+    var td = el("td");
+    td.appendChild(node);
+    return td;
+  }
+
+  function setText(id, text) {
+    var node = document.getElementById(id);
+    if (node) node.textContent = text === undefined || text === null ? "" : String(text);
+  }
+
+  // editableCell renders an inline edit cell of "text + ✎", shared by model IDs and account aliases.
+  //
+  // Click text/pencil, or press Enter/Space after focusing to enter editing: Enter/blur saves, Esc cancels.
+  // Saving an empty string means clearing, and the display state returns to opts.fallback(). Interaction, keyboard handling, and styles
+  // exist only in this implementation, with call sites providing only "what to show" and "how to save".
+  //
+  // opts:
+  //   saved       Current saved value (empty = not set)
+  //   fallback()  Display text when not set (stored as function: must immediately reflect the latest value after saving)
+  //   prefill()   Edit box prefilled value (always uses saved when set)
+  //   placeholder Prompt when prefilled value is empty
+  //   mono        Whether display text uses monospaced font
+  //   normalize(next) Maps input to the actual value to be stored; returns empty string to clear
+  //   title(saved) Display state hover tooltip
+  //   save(next)  Save; returns a Promise, resolving to false means not saved (silent fallback),
+  //               reject means save failed (banner prompt + fallback)
+  function editableCell(opts) {
+    var cell = el("td");
+    var saved = opts.saved || "";
+    var normalize = opts.normalize || identity;
+    var wrap = el("span", null, "editable");
+    wrap.setAttribute("role", "button");
+    wrap.setAttribute("tabindex", "0");
+    var nameSpan = el("span", null, opts.mono ? "editablename mono" : "editablename");
+    var pencil = el("span", "✎", "editableedit");
+    pencil.setAttribute("aria-hidden", "true");
+    wrap.appendChild(nameSpan);
+    wrap.appendChild(pencil);
+    cell.appendChild(wrap);
+    syncName();
+
+    function syncName() {
+      nameSpan.textContent = saved || opts.fallback();
+      wrap.setAttribute("title", opts.title(saved));
+    }
+
+    function restore(focusBack) {
+      cell.textContent = "";
+      syncName();
+      cell.appendChild(wrap);
+      if (focusBack) wrap.focus();
+    }
+
+    function beginEdit() {
+      // Prefill the "currently active value" to save re-typing; use opts.prefill() when not set.
+      var initial = saved || opts.prefill();
+      var input = document.createElement("input");
+      input.type = "text";
+      input.className = "aliasinput";
+      input.value = initial;
+      input.placeholder = opts.placeholder || "";
+      var done = false;
+
+      // finish submits and returns to display state. focusBack is set to true only on keyboard completion,
+      // blur submission does not grab focus to avoid displacing the element the user just clicked.
+      function finish(commit, focusBack) {
+        if (done) return;
+        done = true;
+        // Normalization precedes comparison: opts.normalize defines "what this value actually means" (leaving blank clears,
+        // filling back original name equals clearing), so call sites don't need to deduplicate individually.
+        var next = normalize(commit ? (input.value || "").trim() : saved);
+        // Not stored if unchanged: equals current value, or equals normalized prefilled value (prefill is the "currently active value",
+        // submitting as-is should not become a new record).
+        if (!commit || next === saved || next === normalize(initial)) { restore(focusBack); return; }
+        input.disabled = true;
+        opts.save(next).then(function (ok) {
+          if (ok === false) { restore(focusBack); return; }
+          saved = next;
+          restore(focusBack);
+        }).catch(function (err) {
+          // Save failed: revert to original value and prompt (errors need user awareness, successes are silent).
+          banner("err", err.message);
+          restore(focusBack);
+        });
+      }
+
+      input.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter") { ev.preventDefault(); finish(true, true); }
+        else if (ev.key === "Escape") { ev.preventDefault(); finish(false, true); }
+      });
+      input.addEventListener("blur", function () { finish(true, false); });
+
+      cell.textContent = "";
+      cell.appendChild(input);
+      input.focus();
+      // Place cursor at the beginning instead of selecting all: prefill is for adding a prefix, and selecting all would overwrite it entirely on the first keystroke.
+      input.setSelectionRange(0, 0);
+    }
+
+    wrap.addEventListener("click", beginEdit);
+    wrap.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); beginEdit(); }
+    });
+    return cell;
+  }
+
+  // ---- Provider Table ----
+  //
+  // The page does not hardcode provider names: all come from the backend /vendors. This way adding a new provider
+  // requires no HTML changes, preventing mismatches where the backend has it but the page doesn't recognize it.
+  var vendorsById = {};
+  var vendorsLoaded = false;
+
+  function loadVendors() {
+    return api("GET", "/vendors").then(function (data) {
+      var list = (data && data.vendors) || [];
+      vendorsById = {};
+      var menu = document.getElementById("addVendorMenu");
+      if (menu) menu.textContent = "";
+      list.forEach(function (vendor) {
+        vendorsById[vendor.id] = vendor;
+        if (!menu) return;
+        // Each item serves as an entry point to "add an account using this provider": clicking it starts login directly,
+        // eliminating the need to select first and then click a button (reducing two steps to one).
+        var item = document.createElement("button");
+        item.type = "button";
+        item.textContent = vendor.name;
+        item.addEventListener("click", function () {
+          closeVendorMenu();
+          startVendorAdd(vendor);
+        });
+        menu.appendChild(item);
+      });
+      vendorsLoaded = true;
+      return list;
+    }).catch(function (err) {
+      // Failure to fetch the provider list should not break the entire page: the account table degrades to showing raw IDs.
+      return [];
+    });
+  }
+
+  // closeVendorMenu collapses the provider dropdown.
+  function closeVendorMenu() {
+    var menu = document.getElementById("addVendorMenu");
+    if (menu) menu.hidden = true;
+  }
+
+  // toggleVendorMenu expands/collapses the provider dropdown.
+  function toggleVendorMenu() {
+    var menu = document.getElementById("addVendorMenu");
+    if (!menu) return;
+    if (menu.hidden && !menu.childElementCount) {
+      banner("warn", "No available providers found, please check enabled_realms in the plugin configuration.");
+      return;
+    }
+    menu.hidden = !menu.hidden;
+  }
+
+  // vendorLabel returns the display name of the provider; falls back to the ID itself if unknown.
+  function vendorLabel(vendorID, realm) {
+    if (vendorID && vendorsById[vendorID]) return vendorsById[vendorID].name;
+    if (vendorID) return vendorID;
+    // Legacy data might only have a realm: construct a readable fallback name.
+    return realm === "global" ? "global" : "cn";
+  }
+
+  // ---- Account View ----
+
+  // lastStatus is the response of the most recent /status, used for re-rendering the account table.
+  //
+  // **Quotas are not stored here separately**: accounts[].quota from /status is the authoritative value cached by the backend,
+  // and storing another copy on the page would cause the two sets of keys to diverge (backend relies on account identity, while the page would have to guess via candidate keys).
+  var lastStatus = null;
+
+  // maskAccount masks API key type accounts: keeping the first four and last four characters, replacing the middle with ***.
+  //
+  // Why mask only api key types: OAuth / device token accounts display nicknames or emails (which are not sensitive),
+  // whereas an API key itself is a credential—the page is plaintext HTML, and rendering the full key into it
+  // is equivalent to writing it into browser caches, screenshots, and recordings. Keys that are too short (≤8 chars) are fully masked, because
+  // exposing the first and last four characters is equivalent to exposing the whole thing.
+  function maskAccount(value) {
+    var text = String(value === undefined || value === null ? "" : value);
+    if (text.length <= 8) return text ? "***" : "";
+    return text.slice(0, 4) + "***" + text.slice(-4);
+  }
+
+  // accountOriginalName is the upstream original name of the account (displayed when no alias is set),
+  // returns an empty string when the name is unknown, leaving it to the caller to decide how to placehold.
+  //
+  // Takes native_label from the backend instead of label: label becomes the alias itself once set,
+  // and comparing against it would make "restoring the original name" impossible to detect.
+  // The label for API key type accounts is the key itself (no nickname given by the user upon adding), so it must be masked;
+  // therefore, the edit box is also pre-filled with the masked text rather than putting the plaintext key into the page DOM.
+  // Other accounts display nicknames/emails.
+  function accountOriginalName(account) {
+    var native = account.native_label || "";
+    var vendor = vendorsById[account.vendor_id];
+    // Keyless accounts ("anonymous") carry no secret, so their names show as is.
+    if (vendor && vendor.auth_mode === "apikey" && account.auth_mode !== "anonymous") {
+      return maskAccount(native || account.auth_id || "");
+    }
+    return native || account.auth_id || "";
+  }
+
+  // accountDisplay determines what an account displays in the table: alias takes priority, upstream name is used when not set.
+  //
+  // An alias is a name chosen by the user, not a credential, so it is displayed as-is without masking. We fetch alias directly
+  // instead of label: after modifying the alias, the page should display the new name immediately without re-fetching /status, and when clearing
+  // the alias, the label remains the upstream name, avoiding the need for the page to remember the "original name" itself.
+  function accountDisplay(account) {
+    return account.alias || accountOriginalName(account) || "-";
+  }
+
+  // accountNameCell renders the "account name + ✎" inline edit, reusing the interaction pattern of model IDs
+  // (editableCell), with aliases saved to /accounts/alias based on account identity (file_id).
+  //
+  // The edit box pre-fills the currently active name (takes alias if set, otherwise upstream name), consistent with model aliases,
+  // saving re-typing. Leaving it blank, or resetting it to the original name, is treated as "no alias desired": saving the upstream name
+  // as an alias would just create an extra copy that never changes with upstream, and makes "whether an alias was set" meaningless,
+  // so normalize uniformly categorizes them as empty strings (clearing the record).
+  // Accounts without a file_id (non-file sources) are not editable.
+  function accountNameCell(account) {
+    if (!account.file_id) return el("td", accountDisplay(account));
+    return editableCell({
+      saved: account.alias || "",
+      fallback: function () { return accountDisplay(account); },
+      prefill: function () { return accountOriginalName(account); },
+      placeholder: "Leave blank to use upstream name",
+      normalize: function (next) { return next === accountOriginalName(account) ? "" : next; },
+      title: function (saved) {
+        return saved
+          ? "Click to edit account alias (leave blank or same as original name to clear)"
+          : "Click to set account alias (leave blank or keep the same as original to not set)";
+      },
+      save: function (next) {
+        return api("POST", "/accounts/alias", { file_id: account.file_id, alias: next }).then(function (data) {
+          if (!data) return false;
+          account.alias = next;
+          return next;
+        });
+      }
+    });
+  }
+
+  // accountKey returns the account identifier for selection and batch operations.
+  //
+  // Use auth_id (host entry.ID / Name) instead of file_id: batch and delete endpoints
+  // match by ID / Name / AuthIndex on the host side, and auth_id is always available on the page.
+  function accountKey(account) {
+    return String(account.auth_id || account.auth_index || account.file_id || "");
+  }
+
+  // selectedAccounts records the checked accounts (keyed by auth_id).
+  //
+  // The account table is re-rendered after each action, so the selection state is stored here rather than only in the DOM:
+  // This avoids re-checking when executing continuous batch flows like "Disable Selected → Delete".
+  var selectedAccounts = {};
+
+  function accountCheckCell(account) {
+    var key = accountKey(account);
+    var cell = el("td");
+    var checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = !!selectedAccounts[key];
+    checkbox.setAttribute("data-account-id", key);
+    checkbox.addEventListener("change", function () {
+      if (checkbox.checked) selectedAccounts[key] = true;
+      else delete selectedAccounts[key];
+      syncAccountSelection();
+    });
+    cell.appendChild(checkbox);
+    return cell;
+  }
+
+  // selectedAccountIDs gets the currently checked accounts (used for batch operations).
+  function selectedAccountIDs() {
+    return Object.keys(selectedAccounts);
+  }
+
+  // syncAccountSelection synchronizes button enabled states after selection changes.
+  //
+  // Deletion is a destructive operation and is disabled when nothing is selected; other batch buttons allow "none selected = all accounts",
+  // so they are always enabled.
+  function syncAccountSelection() {
+    var count = selectedAccountIDs().length;
+    var delBtn = document.getElementById("btnDeleteAccounts");
+    if (delBtn) {
+      delBtn.disabled = count === 0;
+      if (count === 0) { delBtn.textContent = "Delete"; deleteArmed = false; }
+      else if (!deleteArmed) delBtn.textContent = "Delete (" + count + ")";
+    }
+  }
+
+  // setAllAccountsSelected checks/unchecks **currently visible** accounts (same semantics as select-all in the model table).
+  //
+  // Rows hidden by filtering do not change their selection state: filtering only determines which rows are visible, and should not implicitly modify
+  // the selection state of invisible accounts.
+  function setAllAccountsSelected(selected) {
+    Array.prototype.forEach.call(
+      document.querySelectorAll("#accounts input[type=checkbox][data-account-id]"),
+      function (box) {
+        box.checked = selected;
+        var key = box.getAttribute("data-account-id");
+        if (selected) selectedAccounts[key] = true;
+        else delete selectedAccounts[key];
+      });
+    syncAccountSelection();
+  }
+
+  // accountMatchesFilter determines whether an account matches the filter box.
+  //
+  // Only matches fields visible on the page (provider, account name, alias, identity), and does not match
+  // credential contents like tokens: filtering is for finding people, not browsing credentials.
+  function accountMatchesFilter(account, filter) {
+    if (!filter) return true;
+    var vendor = vendorLabel(account.vendor_id, account.realm);
+    var text = [
+      String(account.auth_id || ""),
+      String(account.file_id || ""),
+      String(account.alias || ""),
+      String(account.native_label || ""),
+      vendor
+    ].join(" ").toLowerCase();
+    return text.indexOf(filter) >= 0;
+  }
+
+  function renderAccounts(status) {
+    var host = document.getElementById("accounts");
+    host.textContent = "";
+    var accounts = (status && status.accounts) || [];
+    // The selection set is aligned with **all accounts** rather than the filtered view: filtering accounts out just hides them,
+    // and should not silently uncheck them (otherwise "filter a batch → select all → clear filter → execute" would miss targets).
+    var present = {};
+    accounts.forEach(function (account) { present[accountKey(account)] = true; });
+    Object.keys(selectedAccounts).forEach(function (key) {
+      if (!present[key]) delete selectedAccounts[key];
+    });
+
+    var filter = (document.getElementById("accountFilter").value || "").trim().toLowerCase();
+    var visible = accounts.filter(function (account) { return accountMatchesFilter(account, filter); });
+    setText("accountCount", accounts.length
+      ? "(" + (filter ? visible.length + " / " + accounts.length : accounts.length) + ")"
+      : "");
+    if (!accounts.length) {
+      syncAccountSelection();
+      host.appendChild(el("div", "No accounts yet. Use Add Account above to add one.", "muted"));
+      return;
+    }
+    if (!visible.length) {
+      syncAccountSelection();
+      host.appendChild(el("div", "No accounts matching \"" + filter + "\".", "muted"));
+      return;
+    }
+    // Sorting: provider name + account ID (aggregated by provider, sorted by account ID ascending within provider)
+    visible.sort(function (a, b) {
+      var vendorA = vendorLabel(a.vendor_id, a.realm);
+      var vendorB = vendorLabel(b.vendor_id, b.realm);
+      if (vendorA !== vendorB) {
+        return vendorA < vendorB ? -1 : 1;
+      }
+      var idA = String(a.auth_id || a.label || "").toLowerCase();
+      var idB = String(b.auth_id || b.label || "").toLowerCase();
+      if (idA !== idB) {
+        return idA < idB ? -1 : 1;
+      }
+      return 0;
+    });
+
+    var table = el("table");
+    var head = el("tr");
+    ["", "Status", "Provider", "Account", "Plan", "Remaining / Total", "Usage Rate", "Refresh Time"]
+      .forEach(function (name) { head.appendChild(el("th", name)); });
+    table.appendChild(head);
+
+    visible.forEach(function (account) {
+      var row = el("tr");
+      row.appendChild(accountCheckCell(account));
+      row.appendChild(cellWith(account.disabled ? pill("Disabled", "err") : pill("Active", "ok")));
+
+      var vendor = vendorLabel(account.vendor_id, account.realm);
+      var vendorCell = el("td");
+      vendorCell.appendChild(pill(vendor, vendorChipClass(account.vendor_id, vendor)));
+      row.appendChild(vendorCell);
+
+      row.appendChild(accountNameCell(account));
+
+      // Plan claim column: supports providers that allow claiming (e.g., ZCode) by displaying a plan claim button.
+      var claimSpec = claimButtonSpec(account);
+      if (claimSpec) {
+        var claimCell = el("td");
+        var claimBtn = el("button", claimSpec.text, "act" + (claimSpec.disabled ? "" : " primary"));
+        claimBtn.type = "button";
+        claimBtn.disabled = claimSpec.disabled;
+        claimBtn.title = claimSpec.title || "";
+        claimBtn.addEventListener("click", function () { openClaimModal(account); });
+        claimCell.appendChild(claimBtn);
+        row.appendChild(claimCell);
+      } else {
+        row.appendChild(el("td", "--", "muted"));
+      }
+
+      // Quota column. There is only one data source: account.quota provided by the backend /status endpoint.
+      // When there is no result, static capabilities are used to distinguish two completely different states—if the provider does not provide a quota
+      // interface at all (like OpenCode ZEN), it shows "-- / --"; only "supported but not queried yet" is
+      // shown as "Querying...". Inferring from whether the entry exists in the results would leave the former permanently stuck in querying.
+      var quota = account.quota;
+      if (!quota) {
+        if (account.supports_quota) {
+          // Brief state for first entry or just added: the page automatically queries once upon entry, and adding or manual
+          // refreshing will also re-query.
+          var cell = el("td", "Querying...", "muted");
+          cell.colSpan = 2;
+          row.appendChild(cell);
+        } else {
+          row.appendChild(el("td", "-- / --", "muted"));
+          row.appendChild(el("td", "--", "muted"));
+        }
+      } else if (!quota.ok) {
+        // Failure reason must be visible: rendering only "--" leaves users unable to tell if credentials expired, upstream flickered,
+        // or it's simply unqueryable, and thus they wouldn't know whether to re-authorize or query later. The backend already wrote
+        // the reason into the cache's message, and this only handles displaying it.
+        var reason = quota.message || "Quota query failed";
+        var remainCell = el("td", "-- / --", "muted");
+        remainCell.title = reason;
+        row.appendChild(remainCell);
+        var reasonCell = el("td", shortReason(reason), "muted");
+        reasonCell.title = reason;
+        row.appendChild(reasonCell);
+      } else if (quota.unlimited) {
+        row.appendChild(el("td", "Unlimited"));
+        row.appendChild(el("td", "—", "muted"));
+      } else {
+        // total=0 is not equal to "quota exhausted": some upstreams only report available balance (AutoClaw's wallet
+        // only has balance, no total/used). Treating 0 as the total would result in "10000 / 0"
+        // plus a red 0% empty bar, which is both incorrect and misleading; instead, display as "balance / —" with the ratio left empty.
+        var hasTotal = quota.total > 0;
+        var remainCell = el("td", quota.remain + " / " + (hasTotal ? quota.total : "—"));
+        if (!hasTotal) {
+          remainCell.title = "Upstream provides only available balance, without total / used concepts";
+        }
+        row.appendChild(remainCell);
+        var ratio = hasTotal ? (quota.remain / quota.total) : 0;
+        var barCell = el("td");
+        if (hasTotal) {
+          // Threshold coloring: remaining >=50% green / 20~50% amber / <20% red (the column displays the remaining percentage).
+          var bar = el("span", null, ratio >= 0.5 ? "bar" : (ratio >= 0.2 ? "bar warn" : "bar err"));
+          var fill = el("i");
+          fill.style.width = Math.round(ratio * 100) + "%";
+          bar.appendChild(fill);
+          barCell.appendChild(bar);
+        }
+        barCell.appendChild(el("span", hasTotal ? Math.round(ratio * 100) + "%" : "—", "muted"));
+        row.appendChild(barCell);
+      }
+
+      // Refresh time column (displays the last update time of the credential file)
+      var rt = account.refreshed_at ? new Date(account.refreshed_at).toLocaleString() : "-";
+      row.appendChild(el("td", rt, "muted"));
+
+      table.appendChild(row);
+    });
+    host.appendChild(table);
+
+    var summary = el("div", "Total " + accounts.length + (filter ? " accounts (showing " + visible.length + ")" : " accounts")
+      + " · Plugin version " + (status.version || "-")
+      + " · Prompt " + ((status.settings || {}).prompt_mode || "-"), "hint");
+    host.appendChild(summary);
+
+    syncAccountSelection();
+  }
+
+  // loadStatus fetches account status and renders the account table, returning a Promise for serial orchestration by the caller.
+  //
+  // Returning a Promise is necessary: quota results rely on the account table being rendered. If run in parallel,
+  // quotas arriving before status would be overwritten by "Loading" (and vice versa). Serial execution ensures stability.
+  function loadStatus(skipClearBanner) {
+    if (!skipClearBanner) clearBanner();
+    return api("GET", "/status").then(function (status) {
+      if (!status) return;
+      lastStatus = status;
+      renderAccounts(status);
+      var settings = status.settings || {};
+      document.getElementById("setKeepaliveHours").value = (settings.keepalive_hours || []).join(",");
+      var promptSel = document.getElementById("setPromptMode");
+      if (promptSel) promptSel.value = settings.prompt_mode || "passthrough";
+      var tagSel = document.getElementById("setModelNameTag");
+      if (tagSel) tagSel.value = settings.model_name_tag || "off";
+      var scheduler = status.scheduler || {};
+      document.getElementById("scheduleInfo").textContent =
+        "Next Token Keep-alive: " + (scheduler.next_at || "-");
+      // Self-healing: reload after the last change failed (page closed, host unavailable at the time), retry here.
+      // After a successful reload, the plugin clears this flag; it retries once per page lifecycle to prevent the host
+      // from repeatedly writing configuration when auto-reload is unsupported.
+      if (status.restart_pending && !modelSyncSelfHealed) {
+        modelSyncSelfHealed = true;
+        syncModelConfig();
+      }
+    }).catch(function (err) { banner("err", err.message); throw err; });
+  }
+
+  // deleteArmed records whether the "Delete" button has entered the confirmation state (automatically resets after 5 seconds).
+  var deleteArmed = false;
+
+  // deleteSelectedAccounts batch deletes the selected accounts (requires two clicks to confirm).
+  //
+  // Deletes the credential file: the host uses fsnotify to monitor the auth directory, and will automatically
+  // unregister the account once the file is deleted, requiring no extra notification. Deletion is irreversible, so user confirmation is mandatory;
+  // a global flag records "confirmed" state on the button to prevent accidental clicks.
+  function deleteSelectedAccounts(btn) {
+    var ids = selectedAccountIDs();
+    if (!ids.length) return;
+    if (!deleteArmed) {
+      deleteArmed = true;
+      banner("warn", "Click 'Delete' again to confirm deleting the selected " + ids.length + " accounts (irreversible)");
+      btn.textContent = "Confirm Deletion";
+      setTimeout(function () {
+        deleteArmed = false;
+        syncAccountSelection();
+      }, 5000);
+      return;
+    }
+    deleteArmed = false;
+    btn.disabled = true;
+    api("POST", "/accounts/delete", { account_ids: ids })
+      .then(function (data) {
+        if (!data) return;
+        var results = data.results || [];
+        var failed = results.filter(function (r) { return !r.ok; });
+        banner(failed.length ? "warn" : "ok",
+          failed.length
+            ? "Deleted " + (results.length - failed.length) + " accounts, " + failed.length + " failed: " + failed[0].message
+            : (data.error || ("Deleted " + (data.deleted || ids.length) + " accounts")), 8000);
+        // Remove successful ones from the selected set; keep failed ones checked to facilitate retry.
+        results.forEach(function (r) { if (r.ok) delete selectedAccounts[r.auth_id]; });
+        // Immediately re-fetch status after deletion so deleted accounts disappear from the list.
+        loadStatus(true).catch(function () { });
+      })
+      .catch(function (err) { banner("err", err.message); })
+      .then(function () { syncAccountSelection(); });
+  }
+
+  // toggleSelectedAccounts batch enables/disables selected accounts.
+  //
+  // Disabling only writes the disabled flag on the credential (the host won't route to it after scanning the disk); both the file and token
+  // are retained so it can be re-enabled at any time—this is distinct from deletion.
+  function toggleSelectedAccounts(disabled) {
+    var ids = selectedAccountIDs();
+    if (!ids.length) { banner("err", "Please select accounts first"); return; }
+    var verb = disabled ? "disable" : "enable";
+    api("POST", "/accounts/enabled", { account_ids: ids, enabled: !disabled }).then(function (data) {
+      if (!data) return;
+      var failed = (data.results || []).filter(function (r) { return !r.ok; });
+      banner(failed.length ? "warn" : "ok",
+        failed.length ? verb + " failed: " + failed[0].message : "Successfully " + verb + "d " + (data.changed || 0) + " accounts", 8000);
+      loadStatus(true).catch(function () { });
+    }).catch(function (err) { banner("err", err.message); });
+  }
+
+  // ---- Quota ----
+
+  // loadQuotas queries account quotas (empty targets means all).
+  //
+  // Results are **not intercepted by the page**: the backend writes each account's result to its own cache during the query,
+  // so accounts[].quota returned by the next /status call is authoritative. If the page stored a separate copy,
+  // it would create two sets of keys (backend by account identity, page guessing by 5 candidate keys), causing discrepancies
+  // where quotas permanently disappear. Here we simply re-fetch the account table after the query completes.
+  //
+  // When quiet is true, do not show a banner—triggered automatically upon entering the page, no need to disturb the user;
+  // Provide feedback only when the button is clicked manually.
+  function loadQuotas(quiet, targets) {
+    if (!quiet) banner("ok", "Querying account quota...", 0);
+    return api("POST", "/quotas", { account_ids: targets || [] }).then(function (data) {
+      if (!data) return;
+      var results = (data && data.results) || [];
+      var failures = results.filter(function (r) { return !r.ok; });
+      if (!quiet) {
+        if (!failures.length) {
+          banner(
+"ok", "Quota query complete: " + results.length + " accounts", 5000);
+        } else {
+          // Just showing "N failures" leaves the user unaware of which accounts failed and why, forcing them to try one by one;
+          // List the first 5 individually and collapse the rest into a count to prevent an infinitely long banner.
+          var detail = failures.slice(0, 5).map(function (r) {
+            var who = r.label || r.name || r.auth_id || "Unknown Account";
+            var vendor = r.vendor_name || r.vendor_id || "Unknown Provider";
+            return vendor + " / " + who + ": " + (r.message || "Unknown Error");
+          });
+          if (failures.length > detail.length) {
+            detail.push("...and " + failures.length + " other accounts failed");
+          }
+          banner("warn", "Quota query complete: " + results.length + " accounts, " +
+            failures.length + " failures\n" + detail.join("\n"), 12000);
+        }
+      }
+      return loadStatus(true);
+    }).catch(function (err) {
+      if (!quiet) banner("err", err.message, 8000);
+      throw err;
+    });
+  }
+
+  // ---- Plan Claiming ----
+
+  // claimContext is the context of the current modal (only one account is processed in the modal at a time).
+  var claimContext = null;
+
+  // claimButtonSpec provides button text and availability based on the account's claim status.
+  //
+  // The status comes from the incidental results accounts[].claim of the quota query: the quota query already hits
+  // billing/current and billing/preview, and the console refreshes the quota every time it enters the page,
+  // so no additional polling endpoint is needed here.
+  function claimButtonSpec(account) {
+    if (!account.supports_claim) return null;
+    var claim = account.claim || {};
+    if (claim.error) return { text: "Claim Plan", disabled: false, title: claim.error };
+    // Not checked yet (initial load) or has available plans to claim
+    if (!claim.checked_at || claim.claimable > 0) {
+      return { text: "Claim Plan", disabled: false, title: claim.claimable ? (claim.claimable + " plans available") : "Click to check available plans" };
+    }
+    // All claimed
+    return { text: "Claimed", disabled: true, title: "All current plans have been claimed" };
+  }
+
+  // openClaimModal opens the claim modal and fetches claimable plans in real-time.
+  function openClaimModal(account) {
+    var modal = document.getElementById("claimModal");
+    var plans = document.getElementById("claimPlans");
+    var captchaBox = document.getElementById("claimCaptcha");
+    var hint = document.getElementById("claimHint");
+    var pasteBox = document.getElementById("claimPasteBox");
+    document.getElementById("claimTitle").textContent = "Claim Plan · " + accountDisplay(account);
+    plans.textContent = "Querying claimable plans...";
+    captchaBox.textContent = "";
+    hint.textContent = "";
+    pasteBox.hidden = true;
+    document.getElementById("claimVerifyParam").value = "";
+    document.getElementById("btnClaimConfirm").disabled = true;
+
+    // Explicitly show the modal
+    modal.removeAttribute("hidden");
+    modal.hidden = false;
+    modal.style.display = "flex";
+
+    claimContext = { account: account, planId: "", verifyParam: "", captcha: null };
+    api("POST", "/plans/preview", { account_id: account.auth_id || account.auth_index })
+      .then(function (data) {
+        if (!claimContext || claimContext.account !== account) return;
+        if (!data) return;
+        if (!data.ok) {
+          plans.textContent = data.message || "Query failed";
+          return;
+        }
+        if (!data.plans || !data.plans.length) {
+          plans.textContent = "All current plans have been claimed. No new campaigns available at the moment.";
+          return;
+        }
+        renderClaimPlans(data.plans);
+        if (data.captcha) {
+          setupClaimCaptcha(data.captcha);
+        } else {
+          document.getElementById("btnClaimConfirm").disabled = false;
+        }
+      })
+      .catch(function (err) {
+        if (!claimContext || claimContext.account !== account) return;
+        plans.textContent = err.message || "Failed to query plans";
+      });
+  }
+
+  // closeClaimModal closes the modal and discards the context (preventing the previous token from being used the next time it opens).
+  function closeClaimModal() {
+    var modal = document.getElementById("claimModal");
+    modal.setAttribute("hidden", "");
+    modal.hidden = true;
+    modal.style.display = "none";
+    document.getElementById("claimCaptcha").textContent = "";
+    claimContext = null;
+  }
+
+  // renderClaimPlans lists claimable plans as a single-selection list, defaulting to the highest priority (the first in the list).
+  function renderClaimPlans(plans) {
+    var host = document.getElementById("claimPlans");
+    host.textContent = "";
+    plans.forEach(function (plan, index) {
+      var card = el("div", null, "plan" + (index === 0 ? " selected" : ""));
+      card.appendChild(el("div", plan.name || plan.plan_id, "plan-title"));
+      if (plan.description) card.appendChild(el("div", plan.description, "muted"));
+      if (plan.grants && plan.grants.length) {
+        card.appendChild(el("div", plan.grants.map(function (g) {
+          return g.model + " " + formatGrantUnits(g.units) + (g.period ? " (" + g.period + ")" : "");
+        }).join(" · "), "plan-grants"));
+      }
+      card.addEventListener("click", function () {
+        var all = host.querySelectorAll(".plan");
+        for (var i = 0; i < all.length; i++) all[i].classList.remove("selected");
+        card.classList.add("selected");
+        claimContext.planId = plan.plan_id;
+      });
+      host.appendChild(card);
+      if (index === 0) claimContext.planId = plan.plan_id;
+    });
+  }
+
+  // formatGrantUnits formats token quotas into a readable form (125k tokens / 120M tokens).
+  function formatGrantUnits(units) {
+    if (!units || units <= 0) return "0";
+    if (units >= 1e8) return trimZero((units / 1e8).toFixed(2)) + "00M tokens";
+    if (units >= 1e4) return trimZero((units / 1e4).toFixed(1)) + "0k tokens";
+    return Math.round(units) + " tokens";
+  }
+
+  function trimZero(text) {
+    return text.indexOf(".") >= 0 ? text.replace(/0+$/, "").replace(/.$/, "") : text;
+  }
+
+  // setupClaimCaptcha renders the Alibaba Cloud scratch verification control in the page.
+  //
+  // Try "traceless" verification first (startTracelessVerification): when risk control passes, the user experiences no friction at all;
+  // if it fails, the SDK pops up a slider automatically, and the user drags it once. Upon success, the callback provides
+  // captchaVerifyParam, which the plugin forwards to the upstream.
+  function setupClaimCaptcha(config) {
+    var hint = document.getElementById("claimHint");
+    if (!config.scene_id) {
+      hint.textContent = "Upstream did not provide CAPTCHA parameters; cannot complete claim on the page";
+      return;
+    }
+    loadAliyunSdk().then(function () {
+      window.AliyunCaptchaConfig = { region: config.region, prefix: config.prefix };
+      window.initAliyunCaptcha({
+        SceneId: config.scene_id,
+        mode: "popup",
+        language: "zh-CN",
+        showErrorTip: false,
+        element: "#claimCaptcha",
+        button: "#claimCaptchaBtn",
+        getInstance: function (inst) {
+          try {
+            if (inst.startTracelessVerification) inst.startTracelessVerification();
+          } catch (e) { /* Fall back to slider when invisible captcha is unavailable */ }
+        },
+        success: function (param) {
+          if (!claimContext) return;
+          claimContext.verifyParam = (typeof param === "string" ? param : (param && param.captchaVerifyParam) || "");
+          claimContext.captcha = config;
+          hint.textContent = "✓ CAPTCHA passed, please click confirm to claim.";
+          document.getElementById("btnClaimConfirm").disabled = false;
+        },
+        fail: function () {
+          hint.textContent = "Invisible verification failed, please complete the slider as prompted.";
+        },
+        onError: function () {
+          hint.textContent = "CAPTCHA error, please try again.";
+        }
+      });
+      hint.textContent = "Please complete the CAPTCHA (usually passes invisibly).";
+    }).catch(function (err) {
+      // Fall back to pasting when CDN is unreachable: better than leaving the user stuck.
+      hint.textContent = err.message + ", you can expand below to paste the verification code parameters.";
+      document.getElementById("claimPasteBox").hidden = false;
+    });
+  }
+
+  // loadAliyunSdk lazily loads the Alibaba Cloud captcha script (shared by plan claiming and login).
+  var aliyunSdkPromise = null;
+  function loadAliyunSdk() {
+    if (typeof window.initAliyunCaptcha === "function") return Promise.resolve();
+    if (aliyunSdkPromise) return aliyunSdkPromise;
+    aliyunSdkPromise = new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = "https://o.alicdn.com/captcha-frontend/aliyunCaptcha/AliyunCaptcha.js";
+      s.onload = function () {
+        if (typeof window.initAliyunCaptcha === "function") { resolve(); return; }
+        aliyunSdkPromise = null;
+        reject(new Error("Captcha component loading exception, please try again"));
+      };
+      s.onerror = function () {
+        aliyunSdkPromise = null;
+        reject(new Error("Failed to load captcha script"));
+      };
+      document.head.appendChild(s);
+    });
+    return aliyunSdkPromise;
+  }
+
+  // submitClaim submits the claim.
+  function submitClaim() {
+    if (!claimContext) return;
+    var pasted = (document.getElementById("claimVerifyParam").value || "").trim();
+    var param = claimContext.verifyParam || pasted;
+    if (!param) {
+      banner("warn", "Please complete the CAPTCHA first");
+      return;
+    }
+    var btn = document.getElementById("btnClaimConfirm");
+    btn.disabled = true;
+    btn.textContent = "Claiming…";
+    api("POST", "/plans/claim", {
+      account_id: claimContext.account.auth_id || claimContext.account.auth_index,
+      plan_id: claimContext.planId,
+      verify_param: param,
+      verify_region: (claimContext.captcha && claimContext.captcha.region) || ""
+    }).then(function (data) {
+      btn.textContent = "Confirm Claim";
+      btn.disabled = false;
+      if (!data) return;
+      banner(data.ok ? "ok" : "err", data.message || (data.ok ? "Claim successful" : "Claim failed"));
+      if (!data.ok) return;
+      closeClaimModal();
+      // Quota and "claimed" status after claiming are populated by the plugin in the same refresh, re-fetching updates it to disabled state.
+      loadStatus(true).catch(function () { });
+    }).catch(function (err) {
+      btn.textContent = "Confirm Claim";
+      btn.disabled = false;
+      banner("err", err.message);
+    });
+  }
+
+  // ---- Models ----
+
+  var allModels = [];
+
+  // ---- Model Table Column Definitions ----
+  //
+  // Table headers and cells are rendered from this description: column order and visibility share a single source,
+  // preventing misalignment where "headers are hidden but cells remain". Optional columns are hidden by default and can be opened via browser.
+  var MODEL_COLUMNS = [
+    { key: "check", header: "", cell: modelCheckCell },
+    { key: "status", header: "Status", cell: modelStatusCell },
+    { key: "vendor", header: "Provider", cell: modelVendorCell },
+    { key: "model", header: "Model ID", cell: modelIDCell },
+    { key: "name", header: "Name", cell: function (m) {
+      var td = el("td");
+      var span = el("span", m.name || "—", "name-text");
+      if (m.name) span.title = m.name;
+      td.appendChild(span);
+      return td;
+    } },
+    { key: "credits", header: "Cost Rate", cell: modelCreditsCell },
+    { key: "context", header: "Context", cell: function (m) {
+      return el("td", m.context_length ? formatTokens(m.context_length) : "—");
+    } },
+    { key: "output", header: "Output Limit", optional: true, defaultShow: false, cell: function (m) {
+      return el("td", m.max_output_tokens ? formatTokens(m.max_output_tokens) : "—");
+    } },
+    { key: "efforts", header: "Reasoning Tier", optional: true, defaultShow: false, cell: function (m) {
+      var levels = (m.efforts || []).join(" / ");
+      return el("td", levels || "—", levels ? "" : "muted");
+    } },
+    { key: "caps", header: "Capabilities", optional: true, defaultShow: true, cell: function (m) {
+      var caps = [];
+      if (m.supports_images) caps.push("Image");
+      if (m.supports_tools) caps.push("Tool");
+      return el("td", caps.join(" · ") || "—", caps.length ? "" : "muted");
+    } }
+  ];
+
+  // Preferences are stored as an object mapping { [colKey]: boolean }:
+  // Defaults fall back to each column's defaultShow, providing natural extensibility and backward compatibility.
+  var MODEL_COLUMNS_STORE_KEY = "freehub-model-optional-columns";
+  var columnPrefs = readColumnPrefs();
+  var creditsSortOrder = null; // null | "asc" | "desc"
+
+  function readColumnPrefs() {
+    try {
+      var raw = localStorage.getItem(MODEL_COLUMNS_STORE_KEY);
+      if (!raw) return {};
+      var parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        var legacy = {};
+        parsed.forEach(function (k) { legacy[k] = true; });
+        return legacy;
+      }
+      return (parsed && typeof parsed === "object") ? parsed : {};
+    } catch (e) {
+      return {};   // Privacy mode / corrupted data: revert to default visibility without blocking rendering
+    }
+  }
+
+  function columnVisible(col) {
+    if (!col.optional) return true;
+    if (Object.prototype.hasOwnProperty.call(columnPrefs, col.key)) {
+      return !!columnPrefs[col.key];
+    }
+    return !!col.defaultShow;
+  }
+
+  function visibleColumns() {
+    return MODEL_COLUMNS.filter(columnVisible);
+  }
+
+  // modelCreditValue parses the multiplier value, returning null if there is no valid multiplier (including empty/unconfigured).
+  function modelCreditValue(model) {
+    var raw = String(model.credits || "").trim();
+    if (!raw) return null;
+    if (raw === "Free") return 0;
+    var cleaned = raw.replace(/\bcredits?\b/ig, "").replace(/^[xX]/, "").replace(/[xX]$/, "").trim();
+    var num = parseFloat(cleaned);
+    if (!isNaN(num) && isFinite(num) && num >= 0) {
+      return num;
+    }
+    return null;
+  }
+
+  // toggleOptionalColumn only modifies local preferences and re-renders without sending any requests.
+  // If writing fails (privacy mode / quota), in-memory values still take effect for the current session.
+  function toggleOptionalColumn(key, show) {
+    columnPrefs[key] = !!show;
+    try {
+      localStorage.setItem(MODEL_COLUMNS_STORE_KEY, JSON.stringify(columnPrefs));
+    } catch (e) { /* Ignore: effective for current session only */ }
+    renderModels();
+  }
+
+  function renderModels() {
+    var host = document.getElementById("models");
+    host.textContent = "";
+    var filter = (document.getElementById("modelFilter").value || "").trim().toLowerCase();
+    var list = allModels.filter(function (m) {
+      if (!filter) return true;
+      var vendor = vendorLabel(m.vendor_id, m.realm);
+      var bareID = String(m.id || "");
+      var text = (bareID + " " + String(m.name || "") + " " + String(m.alias || "") + " " + vendor).toLowerCase();
+      return text.indexOf(filter) >= 0;
+    });
+
+    // Default sort order: Status + Provider Name + Model ID (enabled first, disabled last; within the same status, sorted ascending by Provider Name + Model ID)
+    function compareDefault(a, b) {
+      var statusA = a.disabled ? 1 : 0;
+      var statusB = b.disabled ? 1 : 0;
+      if (statusA !== statusB) return statusA - statusB;
+
+      var vendorA = vendorLabel(a.vendor_id, a.realm);
+      var vendorB = vendorLabel(b.vendor_id, b.realm);
+      if (vendorA !== vendorB) {
+        return vendorA < vendorB ? -1 : 1;
+      }
+
+      var idA = String(a.id || "").replace(/^(cn|global):/, "").toLowerCase();
+      var idB = String(b.id || "").replace(/^(cn|global):/, "").toLowerCase();
+      if (idA !== idB) {
+        return idA < idB ? -1 : 1;
+      }
+      return 0;
+    }
+
+    list.sort(function (a, b) {
+      if (creditsSortOrder) {
+        var valA = modelCreditValue(a);
+        var valB = modelCreditValue(b);
+        var hasA = valA !== null;
+        var hasB = valB !== null;
+        // Those without multipliers are placed at the end
+        if (hasA && !hasB) return -1;
+        if (!hasA && hasB) return 1;
+        if (hasA && hasB && valA !== valB) {
+          return creditsSortOrder === "asc" ? valA - valB : valB - valA;
+        }
+      }
+      return compareDefault(a, b);
+    });
+    setText("modelCount", allModels.length ? "(" + list.length + " / " + allModels.length + ")" : "");
+
+    // When there are no models, leave only a single prompt row instead of rendering an empty table full of "—".
+    if (!list.length) {
+      host.appendChild(el("div", allModels.length
+        ? "No models matching \"" + filter + "\"."
+        : "No model list available, fetching from upstream...", "muted"));
+      return;
+    }
+    var columns = visibleColumns();
+    var table = el("table");
+    var head = el("tr");
+    columns.forEach(function (col) {
+      var headerText = col.header;
+      var th = el("th", null, "col-" + col.key);
+      if (col.key === "credits") {
+        th.className += " sortable";
+        th.title = "Click to sort by cost multiplier (low to high / high to low / reset to default)";
+        var wrap = el("span", null, "th-sort-wrap");
+        wrap.appendChild(el("span", headerText));
+        var arrows = el("span", null, "sort-arrows" + (creditsSortOrder ? " order-" + creditsSortOrder : ""));
+        arrows.appendChild(el("span", null, "sort-arrow asc"));
+        arrows.appendChild(el("span", null, "sort-arrow desc"));
+        wrap.appendChild(arrows);
+        th.appendChild(wrap);
+        th.addEventListener("click", function () {
+          if (!creditsSortOrder) creditsSortOrder = "asc";
+          else if (creditsSortOrder === "asc") creditsSortOrder = "desc";
+          else creditsSortOrder = null;
+          renderModels();
+        });
+      } else {
+        th.textContent = headerText;
+      }
+      head.appendChild(th);
+    });
+    table.appendChild(head);
+
+    list.forEach(function (model) {
+      var row = el("tr");
+      columns.forEach(function (col) {
+        var cell = col.cell(model);
+        cell.className = (cell.className ? cell.className + " " : "") + "col-" + col.key;
+        row.appendChild(cell);
+      });
+      table.appendChild(row);
+    });
+    host.appendChild(table);
+  }
+
+  // ---- Model table cells ----
+
+  // Checkbox column: used for batch disable/enable.
+  function modelCheckCell(model) {
+    var cell = el("td");
+    var checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = false;
+    checkbox.setAttribute("data-model-id", model.scope_id || model.id);
+    cell.appendChild(checkbox);
+    return cell;
+  }
+
+  function modelStatusCell(model) {
+    return cellWith(model.disabled ? pill("Disabled", "err") : pill("Normal", "ok"));
+  }
+
+  function modelVendorCell(model) {
+    var vendor = vendorLabel(model.vendor_id, model.realm);
+    return cellWith(pill(vendor, vendorChipClass(model.vendor_id, vendor)));
+  }
+
+  // formatCredits normalizes the multiplier style to always keep two decimal places like "0.50X"; strips extra "credits" characters while keeping Chinese characters (such as "Free" / "Subscription").
+  function formatCredits(raw) {
+    var str = String(raw || "").trim();
+    if (!str) return "";
+    var cleaned = str.replace(/\bcredits?\b/ig, "").replace(/^[xX]/, "").replace(/[xX]$/, "").trim();
+    var num = parseFloat(cleaned);
+    if (!isNaN(num) && isFinite(num) && /^[0-9]+(\.[0-9]+)?$/.test(cleaned) && num >= 0) {
+      return num.toFixed(2) + "X";
+    }
+    return str;
+  }
+
+  // modelCreditsCell displays the quota/cost multiplier provided by upstream (e.g., "0.08X", "Free").
+  // Displays "—" when upstream does not provide one: does not guess values to avoid misleading "unknown" as "free".
+  function modelCreditsCell(model) {
+    var credits = formatCredits(model.credits);
+    if (!credits) return el("td", "—", "muted");
+    var cell = el("td", credits, "mono");
+    cell.title = "Upstream billing multiplier: " + credits;
+    return cell;
+  }
+
+  // modelIDCell renders the combined "Model ID / Alias" column: displays the currently active external ID,
+  // with a ✎ on the right indicating it is editable. When no alias is set, it is just the official ID, without intermediate states like "no alias".
+  //
+  // Interaction and keyboard handling reuse editableCell; clearing and saving = clearing the alias, restoring the official ID.
+  // After a successful save, synchronize once with the host registry—outbound translations for aliases take effect immediately, and this step
+  // also updates the ID in /v1/models.
+  //
+  // The edit box is pre-filled with the "currently active ID" (takes alias if set, otherwise official ID), saving the need to re-type the full name;
+  // The cursor is placed at the beginning (see editableCell) for easily prefixing the platform name before the original name.
+  function modelIDCell(model) {
+    var bareID = String(model.id || "");
+    var key = String(model.scope_id || model.id);
+    return editableCell({
+      saved: model.alias || "",
+      fallback: function () { return bareID; },
+      prefill: function () { return bareID; },
+      placeholder: bareID,
+      mono: true,
+      title: function (saved) {
+        return saved
+          ? "Click to edit external model ID (leave blank to restore official ID: " + bareID + ")"
+          : "Click to edit external model ID (leave blank to use official ID: " + bareID + ")";
+      },
+      save: function (next) {
+        return api("POST", "/models/alias", { model: key, alias: next }).then(function (data) {
+          if (!data) return false;
+          model.alias = next;
+          syncModelConfig();
+          return true;
+        });
+      }
+    });
+  }
+
+  // selectedModelIDs gets the currently checked models (for batch operations).
+  function selectedModelIDs() {
+    var ids = [];
+    Array.prototype.forEach.call(
+      document.querySelectorAll("#models input[type=checkbox][data-model-id]"),
+      function (box) { if (box.checked) ids.push(box.getAttribute("data-model-id")); });
+    return ids;
+  }
+
+  // toggleModels batch disables/enables selected models.
+  //
+  // The target is the **registration layer**: disabled models are no longer registered to the host, so they disappear from /v1/models,
+  // and client requests will be directly rejected by the host. Call interception is immediate, and the registry is updated by the host configuration reload
+  // triggered by syncModelConfig.
+  function toggleModels(disabled) {
+    var ids = selectedModelIDs();
+    if (!ids.length) { banner("err", "Please select models first"); return; }
+    var verb = disabled ? "disable" : "enable";
+    api("POST", "/models/toggle", { models: ids, disabled: disabled }).then(function (data) {
+      if (!data) return;
+      banner("ok", "Successfully " + verb + "d " + (data.changed || ids.length) + " models, syncing to host...");
+      syncModelConfig();
+      loadModels(false);
+    }).catch(function (err) { banner("err", err.message); });
+  }
+
+  // ---- Effect of model changes ----
+  //
+  // Disabling/enabling and aliases modify plugin state. The host only updates /v1/models after rebuilding the model registry (plugin.register /
+  // plugin.reconfigure). The host does not have a reload endpoint, but writing plugin configuration triggers
+  // a configuration reload, during which the host callbacks plugin reconfigure, and the registry is rebuilt accordingly.
+  //
+  // The host determines whether a reload is needed based on the configuration file hash. If the content remains unchanged, it will skip directly, so config_reloaded_at
+  // (the update time of this plugin configuration) is written here to create a content change. The plugin parser is lenient
+  // towards unknown keys, and this key only enters the raw configuration table without causing any behavior.
+  var MODEL_SYNC_DEBOUNCE_MS = 400;
+  var modelSyncTimer = null;
+  var modelSyncRunning = false;
+  var modelSyncPending = false;
+  // Self-healing attempts only once: when restart_pending remains true for a long time (host does not support auto-reload),
+  // avoid writing the configuration on every /status request.
+  var modelSyncSelfHealed = false;
+
+  // syncModelConfig requests the host to reload plugin configuration, aligning the model registry with the latest state.
+  // Consecutive operations (batch selection, sequential alias changes) are merged via debounce; runs only once at a time, and any changes
+  // arriving during execution will run once more afterwards.
+  function syncModelConfig() {
+    if (modelSyncTimer) { clearTimeout(modelSyncTimer); }
+    modelSyncTimer = setTimeout(runModelSync, MODEL_SYNC_DEBOUNCE_MS);
+  }
+
+  function runModelSync() {
+    modelSyncTimer = null;
+    if (modelSyncRunning) { modelSyncPending = true; return; }
+    modelSyncRunning = true;
+    var configPath = hostPath("/plugins/free-model-hub/config");
+    api("GET", configPath).then(function (config) {
+      // GET may return an empty object (custom configuration for this plugin section hasn't been saved yet); pad it into an object before merging.
+      var body = (config && typeof config === "object") ? config : {};
+      body.config_reloaded_at = new Date().toISOString();
+      return api("PATCH", configPath, body);
+    }).then(function () {
+      loadModels(false);
+    }).catch(function (err) {
+      // Failure must be communicated to the user: call interception is active, but /v1/models additions/deletions are not yet synchronized.
+      banner("err", "Failed to synchronize model list: " + err.message
+        + " (You can try again; manual restart of the host is required if its version is too old)");
+    }).then(function () {
+      modelSyncRunning = false;
+      if (modelSyncPending) { modelSyncPending = false; syncModelConfig(); }
+    });
+  }
+
+  // formatTokens formats the token count into a readable string.
+  function formatTokens(value) {
+    var n = Number(value) || 0;
+    if (n >= 1048576) return (n / 1048576).toFixed(1).replace(/\.0$/, "") + "M";
+    if (n >= 1024) return Math.round(n / 1024) + "K";
+    return String(n);
+  }
+
+  // modelsLoaded tracks whether a fetch has been attempted, preventing automatic and manual refreshes from triggering each other.
+  var modelsLoaded = false;
+  // modelsPollLeft is the remaining polling attempts waiting for backend probe completion.
+  var modelsPollLeft = 2;
+
+  // loadModels reads the model manifest; automatically triggers an upstream refresh when the local cache is empty.
+  //
+  // Automatically fetches upon entering the management page so the user doesn't have to click a button first — the cache is empty on first installation or device change,
+  // and an upstream query is made here to populate it.
+  function loadModels(autoRefresh) {
+    api("GET", "/models").then(function (data) {
+      if (!data) return;
+      allModels = (data && data.models) || [];
+      renderModels();
+      setText("modelCount", allModels.length ? "(" + allModels.length + ")" : "");
+      // The backend is still probing cache-missing providers: wait at most two rounds (~6 seconds) before stopping,
+      // avoiding a half-baked page state showing "missing a few providers", and preventing infinite polling.
+      if (data && data.pending_probes && modelsPollLeft > 0) {
+        modelsPollLeft--;
+        setTimeout(function () { loadModels(false); }, 3000);
+        return;
+      }
+      if (allModels.length || !autoRefresh || modelsLoaded) return;
+      modelsLoaded = true;
+      // Cache empty: automatically pull once from upstream (do it only once to avoid spamming upstream on failure).
+      refreshModels(true);
+    }).catch(function (err) { banner("err", err.message); });
+  }
+
+  // refreshModels manually "reads model manifest": actually pulls from upstream once and re-reads the list.
+  //
+  // Previously, this button was bound to loadModels (which only re-reads the local cache), so once the cache was empty,
+  // clicking it would never do anything. Upon failure, display the upstream error as-is — handling 401 and timeouts
+  // differently is essential, as hiding them in logs just makes users guess.
+  function refreshModels(quiet) {
+    var btn = document.getElementById("btnLoadModels");
+    if (btn) btn.disabled = true;
+    modelsLoaded = true;        // Manually refreshed, do not trigger initial screen auto-refresh
+    modelsPollLeft = 2;
+    if (!quiet) banner("ok", "Fetching model manifest from upstream...", 0);
+    api("POST", "/models/refresh", {}).then(function (data) {
+      var count = (data && data.models) || 0;
+      if (!quiet) {
+        banner(count ? "ok" : "warn",
+          count ? ("Fetched " + count + " models from upstream") : "Upstream returned 0 models, please check operation logs", 6000);
+      }
+      return loadModels(false);
+    }).catch(function (err) {
+      if (!quiet) banner("err", "Failed to refresh from upstream: " + err.message, 10000);
+    }).then(function () { if (btn) btn.disabled = false; });
+  }
+
+  // ---- Log View ----
+
+  function appendLogs(entries) {
+    var host = document.getElementById("logs");
+    (entries || []).forEach(function (entry) {
+      var line = el("div", entry.time + " [" + entry.level + "] " + entry.message, entry.level.toUpperCase());
+      host.appendChild(line);
+    });
+    if (host.childElementCount > 500) {
+      while (host.childElementCount > 500) host.removeChild(host.firstChild);
+    }
+    host.scrollTop = host.scrollHeight;
+  }
+
+  function loadLogs(reset) {
+    if (reset) { document.getElementById("logs").textContent = ""; logSeq = 0; }
+    api("GET", "/logs?since=" + logSeq + "&limit=200").then(function (payload) {
+      if (!payload) return;
+      appendLogs(payload.entries);
+      if (payload.next) logSeq = payload.next;
+    }).catch(function (err) { banner("err", err.message); });
+  }
+
+  // ---- View Switching and Event Binding ----
+
+  document.getElementById("btnUseKey").addEventListener("click", function () {
+    if (keyBusy) return;
+    if (Date.now() < keyRetryAfter) {
+    banner("warn", "Key verification just failed, please wait a few seconds and try again (CPA tracks failure counts by IP, continuous retries are not allowed).");
+      return;
+    }
+    var input = document.getElementById("keyInput");
+    var value = (input.value || "").trim();
+    if (!value) { banner("err", "Please enter the management key first"); return; }
+    if (!KEY_RE.test(value)) { banner("err", "Management key can only contain visible ASCII characters"); return; }
+
+    // Send **one** probe request to verify first; memorize and load data only after it passes. Stop here upon failure,
+    // and never fire all initial screen requests (which would hit CPA's 5-strike ban threshold).
+    keyBusy = true;
+    manualKey = value;
+    stopped = false;
+    authReady = false;
+    setKeyStatus("Verifying key...");
+    probeManagementAuth().then(function (ok) {
+      keyBusy = false;
+      if (!ok) {
+        manualKey = "";
+        keyRetryAfter = Date.now() + 10000;
+        revealKeyInput();
+        setKeyStatus("Invalid key, please re-enter (checking 'Remember Password' in the panel avoids re-entering)");
+        if (!stopped) banner("err", "Key verification failed: request failed CPA authentication.");
+        return;
+      }
+      // Remember only in this tab (expires on close), and it must be a verified value.
+      try { sessionStorage.setItem(MANUAL_STORE_KEY, value); } catch (e) { /* Ignore */ }
+      authReady = true;
+      input.value = "";
+      document.getElementById("keyBox").hidden = true;
+      setKeyStatus("Using manually entered key");
+      clearBanner();
+      startConsole();
+    });
+  });
+
+  // ---- Add Account (OAuth Device Authorization) ----
+  //
+  // These two APIs are provided by the **host** (not the routes of this plugin):
+  //   GET /v0/management/workbuddy-auth-url?realm=cn|global   Get authorization URL
+  //   GET /v0/management/get-auth-status?state=...            Poll authorization status
+  // The host forwards requests to the plugin's auth.login.start according to "<provider>-auth-url" in the path,
+  // and the host persists the credentials to disk after the plugin completes login.
+  var loginTimer = null;
+
+  function stopLoginPolling() {
+    if (loginTimer) { clearInterval(loginTimer); loginTimer = null; }
+  }
+
+  var currentApiKeyVendor = null;
+  // currentLoginState records the state of the current login: it must be carried back when pasting the callback link,
+  // so that the plugin can recognize which session the callback belongs to.
+  var currentLoginState = "";
+
+  // startVendorAdd determines the action for "add account" based on provider capabilities.
+  //
+  // Providers supporting login (Cline / WorkBuddy / Qoder) -> initiate device authorization;
+  // Pure API key providers (OpenCode ZEN) -> expand the API Key input box, and directly write the credential file after saving.
+  var MAX_ACCOUNTS_PER_VENDOR = 10;
+
+  function startVendorAdd(vendor) {
+    var loginBox = document.getElementById("loginBox");
+    var apiKeyBox = document.getElementById("apiKeyBox");
+    stopLoginPolling();
+    var existingCount = ((lastStatus && lastStatus.accounts) || []).filter(function (a) {
+      return a.vendor_id === vendor.id;
+    }).length;
+    if (existingCount >= MAX_ACCOUNTS_PER_VENDOR) {
+      if (loginBox) loginBox.hidden = true;
+      if (apiKeyBox) apiKeyBox.hidden = true;
+      banner("err", "Maximum " + MAX_ACCOUNTS_PER_VENDOR + " accounts per provider (" + vendor.name + " has reached the limit)");
+      return;
+    }
+
+    // Providers requiring CAPTCHA before login (AutoClaw Global): first render the Zai/Google entrance,
+    // and only request the authorization URL after dragging the slider to get the token. Credential pasting is still kept in the panel as a fallback.
+    if (vendor && vendor.login_captcha) {
+      startCaptchaLogin(vendor);
+      return;
+    }
+
+    if (vendor.supports_login !== false && vendor.auth_mode !== "apikey") {
+      if (apiKeyBox) apiKeyBox.hidden = true;
+      startLogin(vendor);
+      return;
+    }
+
+    // API Key type provider: directly display the input box on the page to add
+    if (loginBox) loginBox.hidden = true;
+    var smsBox = document.getElementById("smsBox");
+    if (smsBox) smsBox.hidden = true;
+    currentApiKeyVendor = vendor;
+    if (apiKeyBox) {
+      apiKeyBox.hidden = false;
+      document.getElementById("apiKeyTitle").textContent = "Add " + vendor.name + " Account";
+      var hint = document.getElementById("apiKeyHint");
+      hint.textContent = "Paste the API key from the provider's website. After saving, the plugin creates a credential file in the auth directory.";
+      if (vendor.key_note) hint.appendChild(document.createTextNode(" " + vendor.key_note));
+      if (vendor.key_url) {
+        hint.appendChild(document.createTextNode(" Get a key: "));
+        var keyLink = el("a", vendor.key_url);
+        keyLink.href = vendor.key_url;
+        keyLink.target = "_blank";
+        keyLink.rel = "noopener noreferrer";
+        hint.appendChild(keyLink);
+      }
+      document.getElementById("inputApiKey").value = "";
+      document.getElementById("inputApiLabel").value = "";
+      document.getElementById("inputApiKey").focus();
+    }
+  }
+
+  // startCredentialPaste opens the general credential paste box (for autoclawglobal).
+  // Reuse apiKeyBox: single input box for pasting JSON, compatible with ParseCredential on the plugin side.
+  function startCredentialPaste(vendor) {
+    stopLoginPolling();
+    resetLoginCaptcha();
+    clearLoginVariants();
+    currentApiKeyVendor = vendor;
+    var login = document.getElementById("loginBox");
+    var sms = document.getElementById("smsBox");
+    if (login) login.hidden = true;
+    if (sms) sms.hidden = true;
+    var apiKeyBox = document.getElementById("apiKeyBox");
+    if (!apiKeyBox) return;
+    apiKeyBox.hidden = false;
+    document.getElementById("apiKeyTitle").textContent = "Paste " + vendor.name + " Credential";
+    document.getElementById("apiKeyHint").textContent =
+      "Paste AutoClaw Global credential JSON (including access token and refresh token, which can be obtained from the AutoClaw desktop login state file or Agent2API)." +
+      "The plugin will automatically refresh it after saving.";
+    document.getElementById("inputApiKey").value = "";
+    document.getElementById("inputApiLabel").value = "";
+    document.getElementById("inputApiKey").focus();
+  }
+
+  // ---- In-page CAPTCHA login (AutoClaw Global, etc.) ----
+  //
+  // The upstream interface for exchanging authorization URLs strictly requires Alibaba Cloud risk control tokens (generated by the browser-side SDK, while the gateway side
+  // has no equivalent implementation). The workflow is consistent with Agent2API:
+  //   Get control parameters -> drag slider -> captchaVerifyParam -> /login/start to exchange authorization URL
+  //   -> login in new tab -> paste the entire callback link parked at localhost back to exchange code.
+  //
+  // Does not share a fixed container with the "plan claim" widget: re-initializing on the same container after destroying the SDK instance
+  // will get stuck (verified in practice), so a new set of elements/buttons is created for each login and deleted together after use.
+  var loginVariantButtons = [];
+  var loginCaptchaFlow = null;
+  var loginCaptchaGeneration = 0;
+
+  function startCaptchaLogin(vendor) {
+    stopLoginPolling();
+    resetLoginCaptcha();
+    currentSmsVendor = null;
+    currentApiKeyVendor = null;
+    currentLoginState = "";
+    var login = document.getElementById("loginBox");
+    var sms = document.getElementById("smsBox");
+    var apiKey = document.getElementById("apiKeyBox");
+    if (sms) sms.hidden = true;
+    if (apiKey) apiKey.hidden = true;
+    if (!login) return;
+    login.hidden = false;
+    document.getElementById("loginTitle").textContent = "Add " + vendor.name + " Account (Web Login)";
+    document.getElementById("loginUrl").value = "";
+    var pasteBox = document.getElementById("loginPasteBox");
+    if (pasteBox) pasteBox.hidden = true;
+
+    var status = document.getElementById("loginStatus");
+    status.textContent = "Select the login method first; clicking the button will pop up Alibaba Cloud CAPTCHA (official risk control requirement).";
+
+    var row = document.getElementById("loginVariantRow");
+    row.textContent = "";
+    row.hidden = false;
+    row.style.display = "flex";
+    loginVariantButtons = [];
+    var variants = (vendor && vendor.login_variants) || [{ id: "google", label: "Google" }];
+    variants.forEach(function (variant) {
+      var btn = el("button", "Sign in with " + variant.label, "act primary");
+      btn.type = "button";
+      btn.addEventListener("click", function () { beginCaptchaLogin(vendor, variant); });
+      row.appendChild(btn);
+      loginVariantButtons.push(btn);
+    });
+    // Credential paste fallback: the card itself also supports automatic renewal, and users can switch to this path at any time.
+    var pasteBtn = el("button", "Paste Credential", "act");
+    pasteBtn.type = "button";
+    pasteBtn.addEventListener("click", function () { startCredentialPaste(vendor); });
+    row.appendChild(pasteBtn);
+  }
+
+  function setLoginVariantBusy(busy) {
+    loginVariantButtons.forEach(function (btn) { btn.disabled = busy; });
+  }
+
+  // beginCaptchaLogin gets control parameters and starts a round of verification -> exchanges for authorization URL.
+  function beginCaptchaLogin(vendor, variant) {
+    var status = document.getElementById("loginStatus");
+    setLoginVariantBusy(true);
+    status.textContent = "Preparing CAPTCHA...";
+    resetLoginCaptcha();
+    api("GET", "/login/captcha-config?vendor=" + encodeURIComponent(vendor.id)).then(function (data) {
+      if (!data || !data.ok) throw new Error((data && data.message) || "Failed to get risk control verification configuration");
+      var config = data.captcha || {};
+      if (!config.enabled) throw new Error("Web login is not enabled upstream, please use 'Paste Credential' instead");
+      if (!config.scene_id || !config.prefix) throw new Error("Incomplete risk control configuration returned by upstream, please try again later");
+      status.textContent = "Please complete the verification in the popped-up slider (official risk control requirement).";
+      return runLoginCaptcha(config, function (verifyParam) {
+        return requestLoginURL(vendor, variant, verifyParam);
+      });
+    }).catch(function (err) {
+      status.textContent = "Login failed:" + ((err && err.message) || err);
+      resetLoginCaptcha();
+      setLoginVariantBusy(false);
+    });
+  }
+
+  // requestLoginURL uses the verification token to exchange for the authorization address, and expands the paste callback entry.
+  function requestLoginURL(vendor, variant, verifyParam) {
+    var status = document.getElementById("loginStatus");
+    status.textContent = "Human-machine verification passed, fetching authorization link...";
+    return api("POST", "/login/start", {
+      vendor_id: vendor.id,
+      metadata: {
+        oauth_variant: variant.id,
+        ali_captcha_verify_param: verifyParam
+      }
+    }).then(function (data) {
+      if (!data || !data.ok) throw new Error((data && data.message) || "Failed to fetch authorization link");
+      if (!data.url) throw new Error("Upstream did not return an authorization link, please try again");
+      currentLoginState = data.state || "";
+      document.getElementById("loginUrl").value = data.url;
+      var hint = data.callback_hint || variant.callback_hint || "";
+      var pasteBox = document.getElementById("loginPasteBox");
+      if (pasteBox) pasteBox.hidden = false;
+      document.getElementById("loginPasteHint").textContent =
+        "After login, the browser will stop at " + (hint || "the callback address http://localhost/") +
+        ". If this address cannot be opened under remote / Docker deployment, it is normal. Copy the entire link from the address bar and paste it below to submit.";
+      document.getElementById("loginPasteUrl").value = "";
+      document.getElementById("loginPasteStatus").textContent = "";
+      document.getElementById("btnSubmitCallback").disabled = false;
+      status.textContent = "Please open the link below to complete " + variant.label + " login.";
+      // The authorization URL has been retrieved, and the slider process ends here (credentials will be handled by the next paste request).
+      // We **do not destroy immediately** here: we are still inside the SDK's captchaVerifyCallback,
+      // let it receive bizResult=true to dismiss the slider itself; the instance will be cleared on the next initiation/cancellation.
+      setLoginVariantBusy(false);
+      return true;
+    }).catch(function (err) {
+      // Do not dismiss the slider: the verification token is single-use, and failing to exchange the URL (mostly 630014 expired)
+      // allows the user to drag again directly, which is faster than clicking the entry point anew. The error reason is written on the same line.
+      status.textContent = "Failed to fetch authorization link: " + ((err && err.message) || err);
+      throw err;
+    });
+  }
+
+  // runLoginCaptcha renders the Alibaba Cloud control and proactively opens the slider after warming up.
+  //
+  // resolve indicates "control is ready, slider has popped up"; the verification result goes to onVerify (called by the SDK's
+  // captchaVerifyCallback), and the SDK dismisses the slider only when onVerify returns true.
+  function runLoginCaptcha(config, onVerify) {
+    resetLoginCaptcha();
+    var generation = ++loginCaptchaGeneration;
+    var holder = document.getElementById("loginCaptcha");
+    holder.textContent = "";
+    holder.hidden = false;
+
+    var element = document.createElement("div");
+    element.id = "login-captcha-element-" + generation;
+    holder.appendChild(element);
+
+    var trigger = document.createElement("button");
+    trigger.id = "login-captcha-trigger-" + generation;
+    trigger.type = "button";
+    trigger.setAttribute("aria-hidden", "true");
+    trigger.style.position = "fixed";
+    trigger.style.width = "1px";
+    trigger.style.height = "1px";
+    trigger.style.opacity = "0";
+    trigger.style.pointerEvents = "none";
+    holder.appendChild(trigger);
+
+    var flow = { generation: generation, instance: null, element: element, button: trigger, timer: 0, verified: false };
+    loginCaptchaFlow = flow;
+
+    // region/prefix must be set before the script loads, otherwise the SDK will hit the default site and spin indefinitely.
+    window.AliyunCaptchaConfig = { region: config.region || "ga", prefix: config.prefix };
+    return loadAliyunSdk().then(function () {
+      if (generation !== loginCaptchaGeneration) return null;
+      return new Promise(function (resolve, reject) {
+        var settled = false;
+        function settle(fn) {
+          if (settled) return false;
+          settled = true;
+          if (flow.timer) { clearTimeout(flow.timer); flow.timer = 0; }
+          fn();
+          return true;
+        }
+        flow.timer = setTimeout(function () {
+          settle(function () { reject(new Error("Verification code component initialization timed out, please try again")); });
+        }, 40000);
+        try {
+          window.initAliyunCaptcha({
+            SceneId: config.scene_id,
+            mode: "popup",
+            language: "zh-CN",
+            element: "#" + element.id,
+            button: "#" + trigger.id,
+            slideStyle: { width: 360, height: 40 },
+            getInstance: function (inst) {
+              if (generation !== loginCaptchaGeneration) {
+                try { if (inst && inst.destroy) inst.destroy(); } catch (e) { /* Already unavailable */ }
+                return;
+              }
+              flow.instance = inst;
+              settle(resolve);
+            },
+            captchaVerifyCallback: function (param) {
+              if (generation !== loginCaptchaGeneration) {
+                return { captchaResult: false, bizResult: false };
+              }
+              var value = captchaParamText(param);
+              if (!value) return { captchaResult: false, bizResult: false };
+              return Promise.resolve(onVerify(value)).then(function (ok) {
+                if (ok) flow.verified = true;
+                return { captchaResult: !!ok, bizResult: !!ok };
+              }).catch(function () {
+                return { captchaResult: false, bizResult: false };
+              });
+            },
+            onError: function (err) {
+              // Only the initialization phase can be rejected this way; failures during the verification phase are already reported
+              // on the page by onVerify's catch, and the SDK will prompt the user to retry.
+              if (!flow.instance) {
+                settle(function () { reject(new Error((err && err.message) || "Verification code component unavailable, please try again")); });
+              }
+            }
+          });
+        } catch (err) {
+          settle(function () { reject(err); });
+        }
+      });
+    }).then(function (ready) {
+      if (ready === null || generation !== loginCaptchaGeneration) return;
+      // Client observation: clicking the button fails to pop up the slider when SDK warm-up is incomplete.
+      return new Promise(function (resolve) { setTimeout(resolve, 2100); });
+    }).then(function () {
+      if (generation !== loginCaptchaGeneration) return;
+      trigger.click();
+      // The close button in the top right of the SDK panel does not trigger a callback; when no one is dragging, this is the only place to reset the UI.
+      setTimeout(function () {
+        if (generation !== loginCaptchaGeneration || flow.verified) return;
+        document.getElementById("loginStatus").textContent = "Verification code wait timed out, please click login again and retry";
+        resetLoginCaptcha();
+        setLoginVariantBusy(false);
+      }, 120000);
+    });
+  }
+
+  // resetLoginCaptcha invalidates the current round of verification and clears the container (can be called repeatedly).
+  // clearLoginVariants completely clears and hides variant login buttons (to prevent polluting other provider panels).
+  function clearLoginVariants() {
+    var row = document.getElementById("loginVariantRow");
+    if (row) {
+      row.textContent = "";
+      row.hidden = true;
+      row.style.display = "none";
+    }
+    loginVariantButtons = [];
+  }
+  function resetLoginCaptcha() {
+    var flow = loginCaptchaFlow;
+    loginCaptchaFlow = null;
+    loginCaptchaGeneration++;
+    if (flow) {
+      if (flow.timer) clearTimeout(flow.timer);
+      if (flow.instance && typeof flow.instance.destroy === "function") {
+        try { flow.instance.destroy(); } catch (e) { /* Instance may already be unavailable */ }
+      }
+      if (flow.element && flow.element.parentNode) flow.element.parentNode.removeChild(flow.element);
+      if (flow.button && flow.button.parentNode) flow.button.parentNode.removeChild(flow.button);
+    }
+    var holder = document.getElementById("loginCaptcha");
+    if (holder) {
+      holder.textContent = "";
+      holder.hidden = true;
+    }
+    clearLoginVariants();
+  }
+
+  // captchaParamText normalizes SDK callback parameters (different versions pass a string or an object).
+  function captchaParamText(param) {
+    if (typeof param === "string") return param;
+    if (param && typeof param.captchaVerifyParam === "string") return param.captchaVerifyParam;
+    if (param && typeof param.verifyParam === "string") return param.verifyParam;
+    return "";
+  }
+
+  var currentSmsVendor = null;
+  var smsSessionKey = "";
+
+  function startSmsLogin(vendor) {
+    stopLoginPolling();
+    resetLoginCaptcha();
+    clearLoginVariants();
+    currentSmsVendor = vendor;
+    smsSessionKey = "";
+    var box = document.getElementById("smsBox");
+    var login = document.getElementById("loginBox");
+    var apiKey = document.getElementById("apiKeyBox");
+    if (login) login.hidden = true;
+    if (apiKey) apiKey.hidden = true;
+    box.hidden = false;
+    document.getElementById("smsTitle").textContent = "Add " + vendor.name + " account (SMS verification code login)";
+    document.getElementById("inputSmsPhone").value = "";
+    document.getElementById("inputSmsCode").value = "";
+    document.getElementById("inputSmsLabel").value = "";
+    document.getElementById("smsStatus").textContent = "Enter mobile number to get verification code.";
+    document.getElementById("inputSmsPhone").focus();
+  }
+
+  function startLogin(vendor) {
+    if (vendor && vendor.sms_login) { startSmsLogin(vendor); return; }
+    resetLoginCaptcha();
+    clearLoginVariants();
+    // The three entry points (authorization link / SMS verification code / API Key) are mutually exclusive: collapse the other two before opening any.
+    var smsBox = document.getElementById("smsBox");
+    if (smsBox) { smsBox.hidden = true; }
+    var apiKey = document.getElementById("apiKeyBox");
+    if (apiKey) { apiKey.hidden = true; }
+    currentSmsVendor = null;
+    stopLoginPolling();
+    currentLoginState = "";
+    var box = document.getElementById("loginBox");
+    document.getElementById("loginTitle").textContent = "Complete Authorization";
+    var urlField = document.getElementById("loginUrl");
+    var status = document.getElementById("loginStatus");
+    var pasteBox = document.getElementById("loginPasteBox");
+    box.hidden = false;
+    urlField.value = "";
+    status.textContent = "Fetching authorization link...";
+
+    // The paste fallback only makes sense for providers where "upstream only recognizes localhost callbacks" (Trae / CodeArts):
+    // Other providers do not have a local callback, and expanding this would only make people think they can paste something here.
+    var canPaste = !!(vendor && vendor.paste_callback);
+    pasteBox.hidden = !canPaste;
+    document.getElementById("loginPasteRedirect").hidden = true;
+    if (canPaste) {
+      var hint = ((vendor && vendor.callback_hint) || "").trim() || "http://127.0.0.1/";
+      document.getElementById("loginPasteHint").textContent =
+        "Upstream only recognizes the local callback address " + hint +
+        ". If you are on the same machine as the plugin, simply click 'Open Link'; for remote / Docker deployments, the browser will stop at this address, " +
+        "copy the entire link from the address bar and paste it below to submit.";
+      document.getElementById("loginPasteUrl").value = "";
+      document.getElementById("loginPasteStatus").textContent = "";
+      document.getElementById("btnSubmitCallback").disabled = false;
+    }
+
+    // The provider is passed to the plugin via metadata: the host parses the provider by path (/freehub-auth-url),
+    // and the plugin selects the specific provider instance by the vendor parameter. The path cannot contain the vendor --
+    // The host will treat it as a provider name for validation and return a 404 directly.
+    api("GET", hostPath("/freehub-auth-url?vendor=" + encodeURIComponent(vendor.id))).then(function (data) {
+      if (!data || !data.url) {
+        status.textContent = "Failed to get authorization link: " + ((data && data.error) || "response missing url");
+        return;
+      }
+      urlField.value = data.url;
+      status.textContent = "Please open the link below to complete authorization. The page will automatically detect the result.";
+      var state = data.state || "";
+      currentLoginState = state;
+      if (state) pollLogin(state);
+    }).catch(function (err) {
+      status.textContent = "Failed to get authorization link: " + err.message;
+    });
+  }
+
+  function pollLogin(state) {
+    stopLoginPolling();
+    var status = document.getElementById("loginStatus");
+    var attempts = 0;
+    loginTimer = setInterval(function () {
+      attempts++;
+      // Device authorization usually completes within tens of seconds; give up polling after 5 minutes.
+      if (attempts > 150) {
+        stopLoginPolling();
+        status.textContent = "Authorization timed out, please restart the login.";
+        return;
+      }
+      api("GET", hostPath("/get-auth-status?state=" + encodeURIComponent(state))).then(function (data) {
+        var value = (data && data.status) || "";
+        if (value === "ok") {
+          stopLoginPolling();
+          currentLoginState = "";
+          status.textContent = "Authorization successful, account written to CPA.";
+          banner("ok", "Account added successfully, querying account quota...");
+          // loadQuotas will re-fetch the account table itself when finished (new accounts are only out of
+          // "querying" status after their quota is checked), so no additional loadStatus is needed here.
+          loadQuotas(true);
+          return;
+        }
+        if (value === "error") {
+          stopLoginPolling();
+          status.textContent = "Authorization failed: " + ((data && data.error) || "unknown reason");
+          return;
+        }
+        status.textContent = "Waiting for authorization... (waited " + attempts * 2 + " seconds)";
+      }).catch(function (err) {
+        stopLoginPolling();
+        status.textContent = "Polling failed: " + err.message;
+      });
+    }, 2000);
+  }
+
+  document.getElementById("btnAddAccount").addEventListener("click", function (event) {
+    event.stopPropagation();
+    toggleVendorMenu();
+  });
+  // Click elsewhere on the page to collapse the menu (including the menu item itself—it is already closed after closeVendorMenu).
+  document.addEventListener("click", closeVendorMenu);
+  document.getElementById("btnOpenUrl").addEventListener("click", function () {
+    var url = document.getElementById("loginUrl").value;
+    if (url) window.open(url, "_blank", "noopener");
+  });
+  document.getElementById("btnCopyUrl").addEventListener("click", function () {
+    var field = document.getElementById("loginUrl");
+    if (!field.value) return;
+    field.select();
+    try {
+      navigator.clipboard.writeText(field.value);
+      document.getElementById("loginStatus").textContent = "Link copied.";
+    } catch (e) {
+      document.getElementById("loginStatus").textContent = "Copy failed, please select and copy manually.";
+    }
+  });
+  document.getElementById("btnLoginCancel").addEventListener("click", function () {
+    stopLoginPolling();
+    resetLoginCaptcha();
+    clearLoginVariants();
+    setLoginVariantBusy(false);
+    currentLoginState = "";
+    document.getElementById("loginBox").hidden = true;
+  });
+
+  // submitLoginCallback submits the localhost callback link pasted by the user.
+  //
+  // When deployed remotely / via Docker, the browser cannot redirect to 127.0.0.1 listened to by the plugin, and will stop at
+  // "This site can't be reached" after authorization; pasting the entire link from the address bar allows the plugin to parse and complete the login locally.
+  // The link contains the authorization ticket, which is not displayed or recorded by the page, but only sent to the plugin.
+  function submitLoginCallback() {
+    var pasteStatus = document.getElementById("loginPasteStatus");
+    var redirect = document.getElementById("loginPasteRedirect");
+    var btn = document.getElementById("btnSubmitCallback");
+    var raw = document.getElementById("loginPasteUrl").value.trim();
+    if (!currentLoginState) {
+      pasteStatus.textContent = "Login session has ended, please restart the login before pasting.";
+      return;
+    }
+    if (!raw) {
+      pasteStatus.textContent = "Please paste the entire link from the browser address bar first.";
+      return;
+    }
+    // Stop background device authorization polling immediately: the user has obtained and submitted the callback, concurrent polling is no longer needed,
+    // preventing unexited polling requests from mistakenly reporting "session does not exist or has expired" after token exchange finishes and session is destroyed.
+    stopLoginPolling();
+    btn.disabled = true;
+    btn.textContent = "Submitting...";
+    redirect.hidden = true;
+    var submittedState = currentLoginState;
+    api("POST", "/login/callback", { state: submittedState, url: raw }).then(function (data) {
+      btn.disabled = false;
+      btn.textContent = "Submit Callback Link";
+      var value = (data && data.status) || "";
+      var message = (data && data.message) || (data && data.error) || "";
+      if (value === "success") {
+        stopLoginPolling();
+        document.getElementById("loginPasteUrl").value = "";
+        currentLoginState = "";
+        resetLoginCaptcha();
+        clearLoginVariants();
+        pasteStatus.textContent = message || "Parsed successfully, writing account...";
+        document.getElementById("loginStatus").textContent = "Authorization successful, account written to CPA.";
+        banner("ok", "Account added successfully, querying account quota...");
+        loadQuotas(true);
+        setTimeout(function () {
+          var box = document.getElementById("loginBox");
+          if (box) { box.hidden = true; box.style.display = "none"; }
+        }, 1500);
+        return;
+      }
+      pasteStatus.textContent = message || "The callback link cannot complete the login temporarily, please restart the login and try again.";
+      // CodeArts: Ticket has not been exchanged for credentials yet; needs to be opened in an internet-connected browser's portal login page.
+      if (data && data.redirect_url) {
+        redirect.href = data.redirect_url;
+        redirect.hidden = false;
+      }
+    }).catch(function (err) {
+      btn.disabled = false;
+      btn.textContent = "Submit Callback Link";
+      pasteStatus.textContent = "Submission failed: " + (err.message || err);
+    });
+  }
+
+  document.getElementById("btnSubmitCallback").addEventListener("click", submitLoginCallback);
+
+  // ---- SMS verification code login (sms_login provider) ----
+  document.getElementById("btnSmsSend").addEventListener("click", function () {
+    var status = document.getElementById("smsStatus");
+    var phone = document.getElementById("inputSmsPhone").value.trim();
+    var btn = document.getElementById("btnSmsSend");
+    if (!currentSmsVendor) { status.textContent = "Please reopen the add panel first."; return; }
+    if (!phone) { status.textContent = "Please enter your phone number first."; return; }
+    btn.disabled = true; btn.textContent = "Sending...";
+    status.textContent = "Sending verification code...";
+    api("POST", "/login/sms/send", { vendor_id: currentSmsVendor.id, phone: phone }).then(function (data) {
+      btn.disabled = false; btn.textContent = "Send Verification Code";
+      if (data && data.ok) {
+        smsSessionKey = (data.session_key || "");
+        status.textContent = data.message || "Verification code sent.";
+        document.getElementById("inputSmsCode").focus();
+      } else {
+        status.textContent = (data && data.message) || "Send failed, please try again later.";
+      }
+    }).catch(function (err) {
+      btn.disabled = false; btn.textContent = "Send Code";
+      status.textContent = "Send failed: " + err.message;
+    });
+  });
+
+  document.getElementById("btnSmsVerify").addEventListener("click", function () {
+    var status = document.getElementById("smsStatus");
+    var phone = document.getElementById("inputSmsPhone").value.trim();
+    var code = document.getElementById("inputSmsCode").value.trim();
+    var label = document.getElementById("inputSmsLabel").value.trim();
+    var btn = document.getElementById("btnSmsVerify");
+    if (!currentSmsVendor) { status.textContent = "Please reopen the add panel first."; return; }
+    if (!phone || !code) { status.textContent = "Please enter the phone number and SMS verification code."; return; }
+    btn.disabled = true; btn.textContent = "Logging in...";
+    status.textContent = "Verifying and adding account...";
+    api("POST", "/login/sms/verify", { vendor_id: currentSmsVendor.id, session_key: smsSessionKey, phone: phone, code: code, label: label }).then(function (data) {
+      btn.disabled = false; btn.textContent = "Sign in and Add";
+      if (data && data.ok) {
+        document.getElementById("smsBox").hidden = true;
+        currentSmsVendor = null;
+        banner("ok", (data.message || "Account added successfully") + ": " + (data.auth_id || ""));
+        loadQuotas(true);
+      } else {
+        status.textContent = (data && data.message) || "Login failed, please check the verification code and try again.";
+      }
+    }).catch(function (err) {
+      btn.disabled = false; btn.textContent = "Sign in and Add";
+      status.textContent = "Login failed: " + err.message;
+    });
+  });
+
+  document.getElementById("btnSmsCancel").addEventListener("click", function () {
+    document.getElementById("smsBox").hidden = true;
+    currentSmsVendor = null;
+  });
+
+  document.getElementById("btnCancelApiKey").addEventListener("click", function () {
+    document.getElementById("apiKeyBox").hidden = true;
+    currentApiKeyVendor = null;
+  });
+
+  document.getElementById("btnSubmitApiKey").addEventListener("click", function () {
+    if (!currentApiKeyVendor) return;
+    var apiKey = (document.getElementById("inputApiKey").value || "").trim();
+    var label = (document.getElementById("inputApiLabel").value || "").trim();
+    if (!apiKey) {
+      banner("err", "API Key cannot be empty");
+      return;
+    }
+    var btn = document.getElementById("btnSubmitApiKey");
+    btn.disabled = true;
+    btn.textContent = "Saving...";
+    var payload = { vendor: currentApiKeyVendor.id, label: label };
+    if (currentApiKeyVendor.id === "autoclawglobal") {
+      // AutoClaw Global: The input field contains credential JSON (access token/refresh token).
+      payload.credential_json = apiKey;
+    } else {
+      payload.api_key = apiKey;
+    }
+    api("POST", "/accounts/add", payload).then(function (res) {
+      btn.disabled = false;
+      btn.textContent = "Save Account";
+      if (!res || !res.ok) {
+        banner("err", (res && res.error) || "Save failed");
+        return;
+      }
+      banner("ok", res.message || "Account added successfully");
+      document.getElementById("apiKeyBox").hidden = true;
+      currentApiKeyVendor = null;
+      loadStatus(true).catch(function () { });
+    }).catch(function (err) {
+      btn.disabled = false;
+      btn.textContent = "Save Account";
+      banner("err", err.message || "Save failed");
+    });
+  });
+
+  // The main "Refresh" button performs Token refresh and keep-alive, then reloads the page state to show the latest file modification time.
+  document.getElementById("btnClaimCancel").addEventListener("click", closeClaimModal);
+  document.getElementById("btnClaimConfirm").addEventListener("click", submitClaim);
+  document.getElementById("claimModal").addEventListener("click", function (event) {
+    if (event.target === this) closeClaimModal();
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") { closeClaimModal(); closeModelColumnsMenu(); }
+  });
+  document.getElementById("claimVerifyParam").addEventListener("input", function () {
+    if (this.value.trim()) {
+      document.getElementById("btnClaimConfirm").disabled = false;
+    }
+  });
+  document.getElementById("btnRefresh").addEventListener("click", function () {
+    var btn = this;
+    var ids = selectedAccountIDs();
+    btn.disabled = true;
+    banner("ok", "Initiating Token refresh for " + (ids.length ? ids.length + " accounts" : "all accounts") + ", please wait...", 0);
+    api("POST", "/keepalive", { account_ids: ids }).then(function (res) {
+      if (!res) return;
+      if (res.failed > 0 && res.succeeded === 0) {
+        banner("err", "Token refresh failed: " + (res.message || "Upstream rejected"));
+      } else if (res.failed > 0) {
+        banner("warn", res.message || ("Token refresh partially successful: " + res.succeeded + " succeeded, " + res.failed + " failed"));
+      } else {
+        banner("ok", res.message || "Token refresh successful for all accounts");
+      }
+      return loadStatus(true);
+    }).catch(function (err) {
+      banner("err", "Token refresh request failed: " + err.message);
+    }).then(function () {
+      btn.disabled = false;
+    });
+  });
+  document.getElementById("btnLoadQuotas").addEventListener("click", function () { loadQuotas(false, selectedAccountIDs()); });
+  document.getElementById("btnDisableAccounts").addEventListener("click", function () { toggleSelectedAccounts(true); });
+  document.getElementById("btnEnableAccounts").addEventListener("click", function () { toggleSelectedAccounts(false); });
+  document.getElementById("btnSelectAllAccounts").addEventListener("click", function () { setAllAccountsSelected(true); });
+  document.getElementById("btnSelectNoneAccounts").addEventListener("click", function () { setAllAccountsSelected(false); });
+  document.getElementById("btnDeleteAccounts").addEventListener("click", function () { deleteSelectedAccounts(this); });
+  document.getElementById("btnLoadModels").addEventListener("click", function () { refreshModels(false); });
+
+  // ---- Model Table Column Display ----
+  //
+  // List all columns with titles: mandatory columns are checked by default and disabled (cannot be unchecked),
+  // Optional columns (output limit, reasoning tier are hidden by default, capabilities are shown by default) can be toggled as needed.
+  // Checking only updates local preferences and re-renders without sending any requests; clicking inside the menu does not bubble, making consecutive selections easy.
+  function buildModelColumnsMenu() {
+    var menu = document.getElementById("modelColsMenu");
+    if (!menu) return;
+    menu.textContent = "";
+    MODEL_COLUMNS.filter(function (col) { return !!col.header; }).forEach(function (col) {
+      var label = el("label");
+      var box = document.createElement("input");
+      box.type = "checkbox";
+      if (col.optional) {
+        box.checked = columnVisible(col);
+        box.addEventListener("change", function () { toggleOptionalColumn(col.key, box.checked); });
+      } else {
+        box.checked = true;
+        box.disabled = true;
+        label.className = "disabled";
+        label.title = "Mandatory column, cannot be unchecked";
+      }
+      label.appendChild(box);
+      label.appendChild(el("span", col.header));
+      menu.appendChild(label);
+    });
+    menu.addEventListener("click", function (event) { event.stopPropagation(); });
+  }
+
+  function closeModelColumnsMenu() {
+    var menu = document.getElementById("modelColsMenu");
+    var btn = document.getElementById("btnModelCols");
+    if (menu) menu.hidden = true;
+    if (btn) btn.setAttribute("aria-expanded", "false");
+  }
+
+  function toggleModelColumnsMenu() {
+    var menu = document.getElementById("modelColsMenu");
+    var btn = document.getElementById("btnModelCols");
+    if (!menu) return;
+    menu.hidden = !menu.hidden;
+    if (btn) btn.setAttribute("aria-expanded", menu.hidden ? "false" : "true");
+  }
+
+  buildModelColumnsMenu();
+  document.getElementById("btnModelCols").addEventListener("click", function (event) {
+    event.stopPropagation();
+    toggleModelColumnsMenu();
+  });
+  // Click elsewhere on the page to collapse column settings (same pattern as the provider dropdown).
+  document.addEventListener("click", closeModelColumnsMenu);
+
+  document.getElementById("modelFilter").addEventListener("input", renderModels);
+  // Account filtering only re-renders existing local data without sending requests (same pattern as model filtering).
+  document.getElementById("accountFilter").addEventListener("input", function () {
+    if (lastStatus) renderAccounts(lastStatus);
+  });
+  document.getElementById("btnDisableModels").addEventListener("click", function () { toggleModels(true); });
+  document.getElementById("btnEnableModels").addEventListener("click", function () { toggleModels(false); });
+  document.getElementById("btnSelectAllModels").addEventListener("click", function () {
+    Array.prototype.forEach.call(document.querySelectorAll("#models input[type=checkbox][data-model-id]"),
+      function (box) { box.checked = true; });
+  });
+  document.getElementById("btnSelectNoneModels").addEventListener("click", function () {
+    Array.prototype.forEach.call(document.querySelectorAll("#models input[type=checkbox][data-model-id]"),
+      function (box) { box.checked = false; });
+  });
+
+
+  document.getElementById("btnSaveSettings").addEventListener("click", function () {
+    var promptSel = document.getElementById("setPromptMode");
+    var payload = {
+      prompt_mode: promptSel ? promptSel.value : "passthrough",
+      model_name_tag: (document.getElementById("setModelNameTag") || {}).value || "off"
+    };
+    var keepaliveRaw = (document.getElementById("setKeepaliveHours").value || "").trim();
+    if (keepaliveRaw) {
+      payload.keepalive_hours = keepaliveRaw.split(",").map(function (v) { return parseInt(v.trim(), 10); })
+        .filter(function (v) { return !isNaN(v); });
+    }
+    api("POST", "/settings", payload).then(function (data) {
+      banner("ok", "Settings saved and applied");
+      // Changing the channel ID affects external model IDs; after saving, immediately reload host configuration to rebuild the registry,
+      // sharing the same synchronization channel with aliases/disabling, avoiding the need to re-enter the page or restart the host.
+      if (data && data.model_registry_dirty) { syncModelConfig(); }
+      loadStatus();
+    }).catch(function (err) { banner("err", err.message); });
+  });
+  document.getElementById("btnLogs").addEventListener("click", function () { loadLogs(true); });
+  document.getElementById("autoLogs").addEventListener("change", function (event) {
+    if (event.target.checked && authReady) loadLogs(true);
+    syncLogPolling();
+  });
+
+  // syncLogPolling starts and stops log polling based on login status and the "Auto Refresh" checkbox.
+  //
+  // The timer is a ban amplifier (one failure every 5 seconds) and must not be started under any circumstances before identity verification.
+  function syncLogPolling() {
+    if (logTimer) { clearInterval(logTimer); logTimer = null; }
+    var box = document.getElementById("autoLogs");
+    if (authReady && box && box.checked) {
+      logTimer = setInterval(function () { loadLogs(false); }, 5000);
+    }
+  }
+
+  // probeManagementAuth uses a **single** request to verify if the management key is valid.
+  //
+  // This is the most important safety valve of this page: CPA tracks management key failure counts by IP, and bans after 5 failures
+  // 30 minutes and blocks the entire console. If the first screen fires 5 concurrent requests,
+  // an invalid key will hit the threshold immediately. Therefore, send only 1 request first, and proceed only on success.
+  function probeManagementAuth() {
+    return api("GET", "/vendors").then(function (data) {
+      return !!(data && data.vendors);
+    }).catch(function () { return false; });
+  }
+
+  // startConsole first screen loading.
+  //
+  // Sequential rather than concurrent: any step returning 401/403 immediately sets stopped, and subsequent requests are
+  // blocked by the api() gate, so a single open causes at most 1 failure.
+  // Provider table remains first: the display names of account and model tables depend on it.
+  function startConsole() {
+    loadVendors().then(function () {
+      // Single-step failure should not block subsequent modules; on auth failure, the api() gate blocks all subsequent requests.
+      // loadQuotas re-fetches the account table on completion, so loadStatus is not needed on the first screen:
+      // Render "Querying" once, then re-render with the quota results.
+      return loadStatus().catch(function () { return null; });
+    }).then(function () {
+      return loadQuotas(true).catch(function () { return null; });
+    }).then(function () {
+      loadModels(true);   // Automatically fetch model list upon entering the page
+      loadLogs(true);     // Automatically fetch logs once upon entering the page
+      syncLogPolling();
+    });
+  }
+
+  // authSourceLabel describes the current key source, used for the status text below the key input box.
+  function authSourceLabel() {
+    if (manualKey) return "Verifying manually entered key...";
+    if (panelAuthKey()) return "Automatically reused CPA management panel key";
+    return "No management key saved in the panel detected";
+  }
+
+  // ensureAuth starts loading data only after confirming the management key is available.
+  //
+  // When there is no key, api() in probeManagementAuth() returns empty directly and **does not send any
+  // requests**, so users who have not checked "Remember Password" will not trigger failed login attempts in CPA when opening this page.
+  function ensureAuth() {
+    setKeyStatus(authSourceLabel());
+    probeManagementAuth().then(function (ok) {
+      if (!ok) {
+        revealKeyInput();
+        setKeyStatus("No available management key detected: you can log in again with 'Remember Password' after logging out of the panel, or enter it here");
+        return;
+      }
+      authReady = true;
+      stopped = false;
+      document.getElementById("keyBox").hidden = true;
+      clearBanner();
+      startConsole();
+    });
+  }
+
+  // Startup: load directly if panel key can be auto-reused; otherwise, expand the manual input box.
+  (function boot() {
+    ensureAuth();
+  })();
+})();
+</script>
+</body>
+</html>

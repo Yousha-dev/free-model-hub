@@ -1,0 +1,221 @@
+{
+  "chat/claude/empty-content": {
+    "output": "{\"model\":\"glm-5.3\",\"messages\":[],\"max_tokens\":4096}"
+  },
+  "chat/claude/full": {
+    "output": "{\"model\":\"deepseek-v4-pro\",\"messages\":[{\"role\":\"system\",\"content\":\"be terse\"},{\"role\":\"user\",\"content\":[{\"type\":\"text\",\"text\":\"hi\"},{\"type\":\"image_url\",\"image_url\":{\"url\":\"https://img\"}}]},{\"role\":\"tool\",\"content\":\"[error] res\",\"tool_call_id\":\"c1\"},{\"role\":\"assistant\",\"content\":\"ans\",\"reasoning_content\":\"chain\",\"tool_calls\":[{\"id\":\"c2\",\"type\":\"function\",\"function\":{\"name\":\"f\",\"arguments\":\"{\\\"a\\\":1}\"}}]}],\"max_tokens\":64,\"stop\":[\"STOP\"],\"reasoning_effort\":\"medium\",\"tools\":[{\"type\":\"function\",\"function\":{\"name\":\"f\",\"description\":\"d\",\"parameters\":{\"type\":\"object\",\"properties\":{}}}}],\"tool_choice\":{\"function\":{\"name\":\"f\"},\"type\":\"function\"}}"
+  },
+  "chat/claude/malformed": {
+    "error": {
+      "class": "translation_failure",
+      "message": "malformed claude request JSON: unexpected end of JSON input"
+    }
+  },
+  "chat/claude/multi-invalid": {
+    "error": {
+      "class": "translation_failure",
+      "message": "malformed tool_choice: json: cannot unmarshal number into Go value of type struct { Type string \"json:\\\"type\\\"\"; Name string \"json:\\\"name\\\"\"; Function struct { Name string \"json:\\\"name\\\"\" } \"json:\\\"function\\\"\" }"
+    }
+  },
+  "chat/claude/null-content": {
+    "output": "{\"model\":\"glm-5.3\",\"messages\":[{\"role\":\"assistant\",\"content\":\"hi\"}],\"max_tokens\":4096}"
+  },
+  "chat/claude/tool-result-image": {
+    "error": {
+      "class": "translation_failure",
+      "message": "unsupported tool_result block type \"image\"; tool messages carry text only"
+    }
+  },
+  "chat/claude/unknown-role": {
+    "error": {
+      "class": "unsupported_protocol_or_parameter",
+      "message": "unsupported message role \"robot\" for /v1/chat/completions"
+    }
+  },
+  "chat/grpc/unsupported": {
+    "error": {
+      "class": "unsupported_protocol_or_parameter",
+      "message": "source protocol \"grpc\" cannot be translated to /v1/chat/completions"
+    }
+  },
+  "chat/openai/native-developer-role": {
+    "output": "{\"messages\":[{\"content\":\"d\",\"role\":\"system\"},{\"content\":\"hi\",\"role\":\"user\"}],\"model\":\"glm-5.3\"}"
+  },
+  "chat/openai/native-large-int": {
+    "output": "{\"big\":9007199254740993,\"max_tokens\":123456789012345678,\"messages\":[{\"role\":\"user\",\"content\":\"hi\"}],\"model\":\"glm-5.3\"}"
+  },
+  "chat/openai/native-malformed": {
+    "error": {
+      "class": "translation_failure",
+      "message": "malformed openai request JSON: unexpected end of JSON input"
+    }
+  },
+  "chat/openai/native-null": {
+    "error": {
+      "class": "translation_failure",
+      "message": "malformed request body: JSON null is not a valid request"
+    }
+  },
+  "chat/openai/native-unchanged": {
+    "output": "{\"model\":\"glm-5.3\",\"messages\":[{\"role\":\"user\",\"content\":\"hi\"}]}"
+  },
+  "chat/responses/empty-input": {
+    "output": "{\"model\":\"glm-5.3\",\"messages\":[]}"
+  },
+  "chat/responses/full": {
+    "output": "{\"model\":\"deepseek-v4-pro\",\"messages\":[{\"role\":\"system\",\"content\":\"be brief\"},{\"role\":\"system\",\"content\":\"sys\"},{\"role\":\"user\",\"content\":[{\"type\":\"text\",\"text\":\"hi\"},{\"type\":\"image_url\",\"image_url\":{\"url\":\"https://img\"}}]},{\"role\":\"assistant\",\"content\":\"ans\",\"reasoning_content\":\"why\"},{\"role\":\"assistant\",\"content\":null,\"reasoning_content\":\"why\",\"tool_calls\":[{\"id\":\"call_a\",\"type\":\"function\",\"function\":{\"name\":\"f\",\"arguments\":\"{\\\"a\\\":1}\"}}]},{\"role\":\"tool\",\"content\":\"done\",\"tool_call_id\":\"call_a\"}],\"max_tokens\":128,\"reasoning_effort\":\"high\",\"tools\":[{\"type\":\"function\",\"function\":{\"name\":\"f\",\"parameters\":{\"type\":\"object\"}}}],\"tool_choice\":{\"function\":{\"name\":\"f\"},\"type\":\"function\"},\"parallel_tool_calls\":false}"
+  },
+  "chat/responses/malformed": {
+    "error": {
+      "class": "translation_failure",
+      "message": "malformed openai-response request JSON: unexpected end of JSON input"
+    }
+  },
+  "chat/responses/multi-invalid": {
+    "error": {
+      "class": "translation_failure",
+      "message": "malformed tool_choice: json: cannot unmarshal number into Go value of type struct { Type string \"json:\\\"type\\\"\"; Name string \"json:\\\"name\\\"\"; Function struct { Name string \"json:\\\"name\\\"\" } \"json:\\\"function\\\"\" }"
+    }
+  },
+  "chat/responses/null-input": {
+    "output": "{\"model\":\"glm-5.3\",\"messages\":[]}"
+  },
+  "chat/responses/reasoning-merge": {
+    "output": "{\"model\":\"deepseek-v4-pro\",\"messages\":[{\"role\":\"user\",\"content\":\"go\"},{\"role\":\"assistant\",\"content\":\"first\",\"reasoning_content\":\"r1\"},{\"role\":\"assistant\",\"content\":null,\"reasoning_content\":\"r1\",\"tool_calls\":[{\"id\":\"c1\",\"type\":\"function\",\"function\":{\"name\":\"f\",\"arguments\":\"{}\"}},{\"id\":\"c2\",\"type\":\"function\",\"function\":{\"name\":\"f\",\"arguments\":\"{}\"}}]},{\"role\":\"tool\",\"content\":\"ok\",\"tool_call_id\":\"c1\"}]}"
+  },
+  "chat/responses/unknown-item": {
+    "error": {
+      "class": "unsupported_protocol_or_parameter",
+      "message": "unsupported Responses input item type \"web_search_call\""
+    }
+  },
+  "messages/claude/native-large-int": {
+    "output": "{\"big\":9007199254740993,\"max_tokens\":16,\"messages\":[{\"role\":\"user\",\"content\":\"hi\"}],\"model\":\"minimax-m3\"}"
+  },
+  "messages/claude/native-malformed": {
+    "error": {
+      "class": "translation_failure",
+      "message": "malformed claude request JSON: unexpected end of JSON input"
+    }
+  },
+  "messages/claude/native-unchanged": {
+    "output": "{\"model\":\"minimax-m3\",\"max_tokens\":16,\"messages\":[{\"role\":\"user\",\"content\":\"hi\"}]}"
+  },
+  "messages/grpc/unsupported": {
+    "error": {
+      "class": "unsupported_protocol_or_parameter",
+      "message": "source protocol \"grpc\" cannot be translated to /v1/messages"
+    }
+  },
+  "messages/openai/empty-content": {
+    "output": "{\"model\":\"minimax-m3\",\"max_tokens\":4096,\"messages\":[]}"
+  },
+  "messages/openai/full": {
+    "output": "{\"model\":\"minimax-m3\",\"max_tokens\":64,\"system\":\"sys\",\"messages\":[{\"role\":\"user\",\"content\":[{\"text\":\"hi\",\"type\":\"text\"},{\"source\":{\"type\":\"url\",\"url\":\"https://img\"},\"type\":\"image\"}]},{\"role\":\"assistant\",\"content\":[{\"text\":\"ans\",\"type\":\"text\"},{\"id\":\"call_a\",\"input\":{\"a\":1},\"name\":\"f\",\"type\":\"tool_use\"}]},{\"role\":\"user\",\"content\":[{\"content\":\"done\",\"tool_use_id\":\"call_a\",\"type\":\"tool_result\"}]}],\"stop_sequences\":[\"END\"],\"tools\":[{\"name\":\"f\",\"description\":\"d\",\"input_schema\":{\"type\":\"object\"}}],\"tool_choice\":{\"disable_parallel_tool_use\":true,\"type\":\"any\"},\"output_config\":{\"effort\":\"low\"}}"
+  },
+  "messages/openai/malformed": {
+    "error": {
+      "class": "translation_failure",
+      "message": "malformed openai request JSON: unexpected end of JSON input"
+    }
+  },
+  "messages/openai/multi-invalid": {
+    "error": {
+      "class": "translation_failure",
+      "message": "stop must be a string or an array of strings"
+    }
+  },
+  "messages/openai/raw-tool-args": {
+    "output": "{\"model\":\"minimax-m3\",\"max_tokens\":4096,\"messages\":[{\"role\":\"assistant\",\"content\":[{\"id\":\"c1\",\"input\":{},\"name\":\"f\",\"type\":\"tool_use\"},{\"id\":\"c2\",\"input\":[1,2],\"name\":\"g\",\"type\":\"tool_use\"}]}]}"
+  },
+  "messages/responses/full": {
+    "output": "{\"model\":\"qwen3.7-max\",\"max_tokens\":48,\"system\":\"sys\",\"messages\":[{\"role\":\"user\",\"content\":\"hi\"},{\"role\":\"assistant\",\"content\":[{\"text\":\"ans\",\"type\":\"text\"},{\"thinking\":\"thought\",\"type\":\"thinking\"},{\"id\":\"call_a\",\"input\":{\"a\":1},\"name\":\"f\",\"type\":\"tool_use\"}]},{\"role\":\"user\",\"content\":[{\"content\":\"done\",\"tool_use_id\":\"call_a\",\"type\":\"tool_result\"}]}],\"tools\":[{\"name\":\"f\",\"input_schema\":{\"type\":\"object\"}}],\"tool_choice\":{\"disable_parallel_tool_use\":true,\"type\":\"auto\"},\"output_config\":{\"effort\":\"high\"}}"
+  },
+  "messages/responses/malformed": {
+    "error": {
+      "class": "translation_failure",
+      "message": "malformed openai-response request JSON: unexpected end of JSON input"
+    }
+  },
+  "messages/responses/multi-invalid": {
+    "error": {
+      "class": "unsupported_protocol_or_parameter",
+      "message": "unsupported Responses input item type \"web_search_call\""
+    }
+  },
+  "messages/responses/none-tool-choice": {
+    "error": {
+      "class": "unsupported_protocol_or_parameter",
+      "message": "tool_choice \"none\" cannot be represented for /v1/messages"
+    }
+  },
+  "responses/claude/empty": {
+    "output": "{\"model\":\"gpt-5.6-luna\",\"max_output_tokens\":4096}"
+  },
+  "responses/claude/full": {
+    "output": "{\"model\":\"gpt-5.6-luna\",\"input\":[{\"content\":[{\"text\":\"hi\",\"type\":\"input_text\"},{\"image_url\":\"data:image/png;base64,abc\",\"type\":\"input_image\"}],\"role\":\"user\",\"type\":\"message\"},{\"content\":[{\"text\":\"ans\",\"type\":\"output_text\"}],\"role\":\"assistant\",\"type\":\"message\"},{\"arguments\":\"{\\\"a\\\":1}\",\"call_id\":\"call_08_ET_2D3DDSQ53OUNWO6PZOPA\",\"name\":\"f\",\"type\":\"function_call\"},{\"call_id\":\"call_08_ET_2D3DDSQ53OUNWO6PZOPA\",\"output\":\"ok\",\"type\":\"function_call_output\"}],\"instructions\":\"sys\",\"tools\":[{\"type\":\"function\",\"name\":\"f\",\"parameters\":{\"type\":\"object\"}}],\"reasoning\":{\"effort\":\"medium\"},\"max_output_tokens\":32}"
+  },
+  "responses/claude/malformed": {
+    "error": {
+      "class": "translation_failure",
+      "message": "malformed claude request JSON: unexpected end of JSON input"
+    }
+  },
+  "responses/claude/multi-invalid": {
+    "error": {
+      "class": "translation_failure",
+      "message": "malformed tool_choice: json: cannot unmarshal number into Go value of type struct { Type string \"json:\\\"type\\\"\"; Name string \"json:\\\"name\\\"\"; Function struct { Name string \"json:\\\"name\\\"\" } \"json:\\\"function\\\"\" }"
+    }
+  },
+  "responses/grpc/unsupported": {
+    "error": {
+      "class": "unsupported_protocol_or_parameter",
+      "message": "source protocol \"grpc\" cannot be translated to /v1/responses"
+    }
+  },
+  "responses/openai-response/native-large-int": {
+    "output": "{\"big\":9007199254740993,\"input\":\"hi\",\"model\":\"gpt-5.6-luna\"}"
+  },
+  "responses/openai-response/native-malformed": {
+    "error": {
+      "class": "translation_failure",
+      "message": "malformed openai-response request JSON: unexpected end of JSON input"
+    }
+  },
+  "responses/openai-response/native-tool-call-marks": {
+    "output": "{\"input\":[{\"arguments\":\"{}\",\"call_id\":\"call_05_ET_AX2JOQHZGKP5ACQRTB4O\",\"name\":\"f\",\"type\":\"function_call\"}],\"model\":\"gpt-5.6-luna\"}"
+  },
+  "responses/openai-response/native-unchanged": {
+    "output": "{\"model\":\"gpt-5.6-luna\",\"input\":\"hi\"}"
+  },
+  "responses/openai-response/native-unknown-input": {
+    "output": "{\"model\":\"gpt-5.6-luna\",\"input\":[\"raw-string-entry\"]}"
+  },
+  "responses/openai/empty-content": {
+    "output": "{\"model\":\"gpt-5.6-luna\"}"
+  },
+  "responses/openai/full": {
+    "output": "{\"model\":\"gpt-5.6-luna\",\"input\":[{\"content\":[{\"text\":\"hi\",\"type\":\"input_text\"},{\"image_url\":\"https://img\",\"type\":\"input_image\"}],\"role\":\"user\",\"type\":\"message\"},{\"content\":[{\"text\":\"ans\",\"type\":\"output_text\"}],\"role\":\"assistant\",\"type\":\"message\"},{\"arguments\":\"{\\\"a\\\":1}\",\"call_id\":\"call_05_ET_AX2JOQHZGKP5ACQRTB4O\",\"name\":\"f\",\"type\":\"function_call\"},{\"call_id\":\"call_05_ET_AX2JOQHZGKP5ACQRTB4O\",\"output\":\"done\",\"type\":\"function_call_output\"}],\"instructions\":\"sys\\n\\ndev\",\"tools\":[{\"type\":\"function\",\"name\":\"f\",\"description\":\"d\",\"parameters\":{\"type\":\"object\"}}],\"tool_choice\":{\"name\":\"f\",\"type\":\"function\"},\"parallel_tool_calls\":true,\"reasoning\":{\"effort\":\"medium\"},\"max_output_tokens\":256}"
+  },
+  "responses/openai/large-int": {
+    "output": "{\"model\":\"gpt-5.6-luna\",\"input\":[{\"content\":[{\"text\":\"hi\",\"type\":\"input_text\"}],\"role\":\"user\",\"type\":\"message\"}],\"max_output_tokens\":9007199254740993}"
+  },
+  "responses/openai/malformed": {
+    "error": {
+      "class": "translation_failure",
+      "message": "malformed openai request JSON: unexpected end of JSON input"
+    }
+  },
+  "responses/openai/multi-invalid": {
+    "error": {
+      "class": "translation_failure",
+      "message": "malformed tool_choice: json: cannot unmarshal number into Go value of type struct { Type string \"json:\\\"type\\\"\"; Name string \"json:\\\"name\\\"\"; Function struct { Name string \"json:\\\"name\\\"\" } \"json:\\\"function\\\"\" }"
+    }
+  },
+  "responses/openai/unknown-role": {
+    "error": {
+      "class": "unsupported_protocol_or_parameter",
+      "message": "unsupported message role \"robot\" for /v1/responses"
+    }
+  }
+}
