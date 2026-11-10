@@ -90,6 +90,28 @@ func TestResolveVendorRejectsUnknown(t *testing.T) {
 	}
 }
 
+func TestResolveVendorFilenamePrecedence(t *testing.T) {
+	registry := newTestRegistry(t,
+		&fakeVendor{Meta: Meta{VendorID: "cline"}},
+		&fakeVendor{Meta: Meta{VendorID: "github"}},
+		&fakeVendor{Meta: Meta{VendorID: "workbuddyglobal"}},
+		&fakeVendor{Meta: Meta{VendorID: "workbuddy"}},
+	)
+	for _, tc := range []struct{ filename, explicit, want string }{
+		{"cline-fixture@github.example.json", "", "cline"},
+		{"github-fixture-cline.json", "", "github"},
+		{"cline-fixture-workbuddyglobal.json", "", "cline"},
+		{"cline-fixture.json", "github", "github"},
+		{"workbuddyglobal-account.json", "", "workbuddyglobal"},
+		{"legacy-cline.json", "", "cline"},
+	} {
+		got, ok := registry.Resolve(tc.filename, "", map[string]any{VendorKey: tc.explicit})
+		if !ok || got.ID() != tc.want {
+			t.Errorf("Resolve(%q, %q) = %v, %v; want %s", tc.filename, tc.explicit, got, ok, tc.want)
+		}
+	}
+}
+
 func TestRegisterVendorRejectsDuplicate(t *testing.T) {
 	registry := newTestRegistry(t, &fakeVendor{Meta: Meta{VendorID: "testdup"}})
 	if errDuplicate := registry.Register(&fakeVendor{Meta: Meta{VendorID: "testdup"}}); errDuplicate == nil {
