@@ -181,16 +181,23 @@ func TestResponseNormalizeBeforeIgnoresLargeRequestBodies(t *testing.T) {
 
 	// Both request bodies are zero bytes, resulting in repeating "AAAA…" after base64 encoding: hitting the scanner's
 	// string skip path rather than being mistakenly treated as a field value.
-	allocated := func(raw []byte) float64 {
-		return testing.AllocsPerRun(20, func() {
-			if _, errHandle := testApp.HandleMethod(pluginabi.MethodResponseNormalizeBefore, raw); errHandle != nil {
-				t.Fatalf("normalize: %v", errHandle)
+	allocatedBytes := func(raw []byte) int64 {
+		result := testing.Benchmark(func(b *testing.B) {
+			b.ReportAllocs()
+			for i := 0; i < b.N; i++ {
+				if _, errHandle := testApp.HandleMethod(pluginabi.MethodResponseNormalizeBefore, raw); errHandle != nil {
+					b.Fatalf("normalize: %v", errHandle)
+				}
 			}
 		})
+		return result.AllocedBytesPerOp()
 	}
-	smallAllocs, largeAllocs := allocated(small), allocated(large)
-	if largeAllocs > smallAllocs {
-		t.Fatalf("allocations must not grow with request bodies: 1KiB=%.1f 4MiB=%.1f", smallAllocs, largeAllocs)
+	// Allocation counts can vary by one when a pool is cleared during GC,
+	// especially under the race detector. Measure bytes instead: decoding or
+	// copying either 4 MiB field exceeds this fixed bookkeeping tolerance.
+	smallBytes, largeBytes := allocatedBytes(small), allocatedBytes(large)
+	if largeBytes > smallBytes+64<<10 {
+		t.Fatalf("allocated bytes must not scale with request bodies: 1KiB=%d B/op 4MiB=%d B/op", smallBytes, largeBytes)
 	}
 
 	// The result itself remains correct: large request bodies do not affect envelope completion.
