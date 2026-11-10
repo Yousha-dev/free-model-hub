@@ -95,8 +95,14 @@ func (r *Registry) Resolve(fileName, provider string, raw map[string]any) (Vendo
 			return ids[i] < ids[j]
 		})
 		for _, id := range ids {
+			if base == id || strings.HasPrefix(base, id+"-") || strings.HasPrefix(base, id+"_") || strings.HasPrefix(base, id+".") {
+				return r.ByID(id)
+			}
+		}
+		// Preserve legacy embedded-marker attribution only when no leading vendor matched.
+		for _, id := range ids {
 			if FileNameMatchesConvention(base, id) {
-				return r.byID[id], true
+				return r.ByID(id)
 			}
 		}
 	}

@@ -1,9 +1,39 @@
 package cline
 
 import (
+	"errors"
 	"strings"
 	"testing"
+
+	"free-model-hub/internal/core"
 )
+
+type namedVendor struct {
+	core.Vendor
+	id string
+}
+
+func (v namedVendor) ID() string { return v.id }
+
+func (v namedVendor) Parse([]byte, string) (*core.Credential, error) {
+	return nil, errors.New("foreign provider cannot parse Cline credential")
+}
+
+func TestRegistryParsesClineBeforeEmbeddedVendor(t *testing.T) {
+	registry := core.NewRegistry()
+	cline := Instances(core.Env{})[0]
+	for _, vendor := range []core.Vendor{cline, namedVendor{Vendor: cline, id: "github"}, namedVendor{Vendor: cline, id: "workbuddyglobal"}} {
+		if err := registry.Register(vendor); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, name := range []string{"cline-fixture@github.example.json", "cline-fixture-workbuddyglobal.json"} {
+		credential, ok := registry.ParseCredential([]byte(`{"type":"freehub","accessToken":"fake-access","refreshToken":"fake-refresh"}`), name, nil)
+		if !ok || credential.VendorID != VendorID {
+			t.Errorf("ParseCredential(%q) = %v, %v; want Cline", name, credential, ok)
+		}
+	}
+}
 
 func TestLooksLikeCredential_Cline(t *testing.T) {
 	cases := []struct {
