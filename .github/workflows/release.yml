@@ -14,7 +14,24 @@ env:
   PLUGIN_ID: free-model-hub
 
 jobs:
+  validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CGO_ENABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Regression checks
+        run: |
+          go vet ./...
+          go test -race -count=1 ./...
+
   windows-linux:
+    needs: validation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +52,7 @@ jobs:
             stage="stage/$goos-$goarch"
             mkdir -p "$stage"
             CGO_ENABLED=1 GOOS=$goos GOARCH=$goarch CC="zig cc -target $zigtarget" \
-              go build -buildmode=c-shared -trimpath -ldflags "-s -w" -o "$stage/$PLUGIN_ID.$ext" .
+              go build -buildmode=c-shared -trimpath -ldflags "-s -w -X main.pluginVersion=$version" -o "$stage/$PLUGIN_ID.$ext" .
             (cd "$stage" && zip -q "../../dist/${PLUGIN_ID}_${version}_${goos}_${goarch}.zip" "$PLUGIN_ID.$ext")
           done
       - uses: actions/upload-artifact@v4
@@ -44,6 +61,7 @@ jobs:
           path: dist/*.zip
 
   darwin:
+    needs: validation
     runs-on: macos-latest
     env:
       MACOSX_DEPLOYMENT_TARGET: "11.0"
@@ -62,7 +80,7 @@ jobs:
             stage="stage/darwin-$goarch"
             mkdir -p "$stage"
             CGO_ENABLED=1 GOOS=darwin GOARCH=$goarch CC="clang -arch $arch" \
-              go build -buildmode=c-shared -trimpath -ldflags "-s -w" -o "$stage/$PLUGIN_ID.dylib" .
+              go build -buildmode=c-shared -trimpath -ldflags "-s -w -X main.pluginVersion=$version" -o "$stage/$PLUGIN_ID.dylib" .
             (cd "$stage" && zip -q "../../dist/${PLUGIN_ID}_${version}_darwin_${goarch}.zip" "$PLUGIN_ID.dylib")
           done
       - uses: actions/upload-artifact@v4

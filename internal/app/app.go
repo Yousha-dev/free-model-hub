@@ -19,7 +19,7 @@ import (
 )
 
 // DefaultVersion is the version when no distribution version number is injected.
-const DefaultVersion = "1.0.0"
+const DefaultVersion = "1.0.1"
 
 // Options are the construction parameters for App.
 type Options struct {
